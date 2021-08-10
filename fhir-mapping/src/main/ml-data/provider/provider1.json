@@ -1,0 +1,211 @@
+{
+    "envelope":
+    {
+        "headers":
+        {
+            "metadata":
+            {
+                "publicID": "5c8f5d2b-16f9-4e32-a096-d0ad690cc795",
+                "ingestTimestamp": "2020-11-04T21:25:00.409233Z",
+                "hashValue": "17605513579732735600"
+            }
+        },
+        "triples": [],
+        "instance":
+        {
+            "provider":
+            {
+                "publicId": "",
+                "providerType": "PERSON",
+                "person":
+                {
+                    "firstName": "Fred",
+                    "lastName": "Fredrickson",
+                    "middleName": "F",
+                    "suffix": "",
+                    "prefix": "Dr.",
+                    "birthDate": null,
+                    "gender": ""
+                },
+                "organization": null,
+                "identifiers": [
+                {
+                    "key": "NPI",
+                    "value": "1225489999"
+                },
+                {
+                    "key": "PTIN",
+                    "value": "251699999"
+                },
+                {
+                    "key": "ITIN",
+                    "value": "251699999"
+                },
+                {
+                    "key": "SCEIS",
+                    "value": "8000049999"
+                },
+                {
+                    "key": "MMIS",
+                    "value": "NP9999"
+                },
+                {
+                    "key": "SSN",
+                    "value": "999999999"
+                }],
+                "providerEnrollment": [
+                {
+                    "type": "I",
+                    "applicationDate": null,
+                    "enrollmentDate": null,
+                    "status": "ACTIVE",
+                    "effectiveDate": "2016-07-12",
+                    "expirationDate": null
+                }],
+                "providerSpeciality": [
+                {
+                    "taxonomy": "363LF0000X",
+                    "isprimary": "Y",
+                    "effectiveDate": "2016-07-12",
+                    "terminationDate": null,
+                    "providerSubSpeciality": null
+                }],
+                "providerLocations": [
+                {
+                    "effectiveDate": "2016-07-12",
+                    "expirationDate": null,
+                    "address":
+                    {
+                        "line1": "PO BOX 19999",
+                        "line2": "",
+                        "line3": "",
+                        "city": "Colordo Sparings",
+                        "county": "",
+                        "countyCode": "",
+                        "state": "CO",
+                        "zip": "809999999",
+                        "addresstype": ["MAILING"]
+                    },
+                    "phoneNumber":
+                    {
+                        "number": "1234569999",
+                        "ext": ""
+                    },
+                    "faxNumber": null,
+                    "email": "",
+                    "isAcceptingNewPatients": null,
+                    "hours": [],
+                    "languages": [],
+                    "contactPerson": []
+                },
+                {
+                    "effectiveDate": null,
+                    "expirationDate": null,
+                    "address":
+                    {
+                        "line1": "PO BOX 29999",
+                        "line2": "",
+                        "line3": "",
+                        "city": "Colordo Sparings",
+                        "county": "",
+                        "countyCode": "",
+                        "state": "CO",
+                        "zip": "809999999",
+                        "addresstype": ["LEGAL", "BILLING"]
+                    },
+                    "phoneNumber":
+                    {
+                        "number": "",
+                        "ext": ""
+                    },
+                    "faxNumber": null,
+                    "email": "",
+                    "isAcceptingNewPatients": null,
+                    "hours": [],
+                    "languages": [],
+                    "contactPerson": []
+                },
+                {
+                    "effectiveDate": "2016-07-12",
+                    "expirationDate": null,
+                    "address":
+                    {
+                        "line1": "9999 W Fred Street",
+                        "line2": "",
+                        "line3": "",
+                        "city": "Colordo Sparings",
+                        "county": "",
+                        "countyCode": "",
+                        "state": "CO",
+                        "zip": "809999999",
+                        "addresstype": ["PRIMARY", "PRACTICE"]
+                    },
+                    "phoneNumber":
+                    {
+                        "number": "1234569999",
+                        "ext": ""
+                    },
+                    "faxNumber": null,
+                    "email": "",
+                    "isAcceptingNewPatients": null,
+                    "languages": [],
+                    "contactPerson": []
+                }],
+                "providerAffiliations": [
+                {
+                    "affiliationRole": "GROUP",
+                    "addresses":
+                    {
+                        "line1": "",
+                        "line2": "9999 W Fred Street",
+                        "line3": "",
+                        "city": "Colordo Sparings",
+                        "county": "",
+                        "countyCode": "",
+                        "state": "CO",
+                        "zip": "809999999",
+                        "addresstype": ["PRACTICE"]
+                    },
+                    "effectiveDate": "2016-07-12",
+                    "expirationDate": null,
+                    "identifiers": [
+                    {
+                        "key": "MMIS",
+                        "value": "NPB999"
+                    },
+                    {
+                        "key": "NPI",
+                        "value": "1841639999"
+                    }]
+                },
+                {
+                    "affiliationRole": "GROUP",
+                    "addresses":
+                    {
+                        "line1": "EXAMPLE NETWORK INC",
+                        "line2": "888 NETWORK ST",
+                        "line3": "",
+                        "city": "Falcon",
+                        "county": "",
+                        "countyCode": "",
+                        "state": "CO",
+                        "zip": "801111111",
+                        "addresstype": ["PRACTICE"]
+                    },
+                    "effectiveDate": "2016-07-12",
+                    "expirationDate": null,
+                    "identifiers": [
+                    {
+                        "key": "MMIS",
+                        "value": "NP1111"
+                    },
+                    {
+                        "key": "NPI",
+                        "value": "1487091111"
+                    }]
+                }]
+            }
+        },
+        "attachments": null
+    }
+}

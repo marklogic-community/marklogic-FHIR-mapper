@@ -1,0 +1,241 @@
+{
+  "collections": [
+    "PractitionerToFHIR",
+    "USCorePractitioner"
+  ],
+  "additionalCollections": [ ],
+  "permissions": "data-hub-common,read,data-hub-common,update",
+  "batchSize": 100,
+  "validateEntity": "doNotValidate",
+  "targetFormat": "JSON",
+  "name": "PractitionerToFHIR",
+  "targetEntityType": "http://example.org/USCorePractitioner-1.0.0/USCorePractitioner",
+  "description": "",
+  "selectedSource": "collection",
+  "sourceQuery": "cts.collectionQuery(['IndividualProvider'])",
+  "sourceDatabase": "data-hub-STAGING",
+  "targetDatabase": "data-hub-FINAL",
+  "headers": { },
+  "interceptors": [ ],
+  "provenanceGranularityLevel": "coarse",
+  "customHook": { },
+  "stepDefinitionName": "entity-services-mapping",
+  "stepDefinitionType": "mapping",
+  "stepId": "PractitionerToFHIR-mapping",
+  "lastUpdated": "2021-05-03T10:56:36.963535-06:00",
+  "properties": {
+    "id": {
+      "sourcedFrom": "document/envelope/headers/metadata/publicID"
+    },
+    "identifier": {
+      "sourcedFrom": "instance/provider/identifiers[key = ('MMIS', 'NPI', 'SSN', 'EIN', 'PTIN', 'ITIN', 'NCPDP', 'DEA')]",
+      "properties": {
+        "system": {
+          "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"https://www.scdhhs.gov/PROVIDER\", \"NPI\": \"http://hl7.org/fhir/sid/us-npi\", \"SSN\": \"http://hl7.org/fhir/sid/us-ssn\", \"EIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"PTIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"ITIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"NCPDP\": \"https://online.ncpdp.org\", \"DEA\": \"https://www.deadiversion.usdoj.gov\"}')"
+        },
+        "value": {
+          "sourcedFrom": "value"
+        },
+        "type": {
+          "sourcedFrom": ".[key = ('MMIS', 'EIN', 'PTIN', 'ITIN', 'NCPDP', 'DEA', 'NPI')]",
+          "properties": {
+            "text": {
+              "sourcedFrom": "key"
+            },
+            "coding": {
+              "sourcedFrom": ".",
+              "properties": {
+                "system": {
+                  "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"EIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"PTIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"ITIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"NCPDP\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"DEA\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"NPI\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"SSN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\"}')"
+                },
+                "code": {
+                  "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"PRN\", \"EIN\": \"EN\", \"PTIN\": \"TAX\", \"ITIN\": \"TAX\", \"NCPDP\": \"RPH\", \"DEA\": \"DEA\", \"NPI\": \"NPI\", \"SSN\": \"SS\"}')"
+                },
+                "display": {
+                  "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"Provider number\", \"EIN\": \"Employer number\", \"PTIN\": \"Tax ID number\", \"ITIN\": \"Tax ID number\", \"NCPDP\": \"Pharmacist license number\", \"DEA\": \"Drug Enforcement Administration registration number\", \"NPI\": \"National provider identifier\", \"SSN\": \"Social Security number\"}')"
+                }
+              },
+              "targetEntityType": "#/definitions/Coding"
+            }
+          },
+          "targetEntityType": "#/definitions/CodeableConcept"
+        },
+        "use": {
+          "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"official\", \"NPI\": \"official\", \"SSN\": \"secondary\", \"EIN\": \"secondary\", \"PTIN\": \"secondary\", \"ITIN\": \"secondary\", \"NCPDP\": \"secondary\", \"DEA\": \"secondary\"}')"
+        }
+      },
+      "targetEntityType": "#/definitions/Identifier"
+    },
+    "name": {
+      "sourcedFrom": "instance/provider/person",
+      "properties": {
+        "family": {
+          "sourcedFrom": "lastName"
+        },
+        "given": {
+          "sourcedFrom": "firstName|middleName"
+        },
+        "prefix": {
+          "sourcedFrom": "prefix[string-length() gt 0]"
+        },
+        "suffix": {
+          "sourcedFrom": "suffix[string-length() gt 0]"
+        }
+      },
+      "targetEntityType": "#/definitions/HumanName"
+    },
+    "gender": {
+      "sourcedFrom": "instance/provider/person/gender"
+    },
+    "birthDate": {
+      "sourcedFrom": "instance/provider/person/birthDate"
+    },
+    "telecom": {
+      "sourcedFrom": "flatToMultipleEntries(instance/provider/providerLocations,'{\"breakout\":[{\"type\":\"phone\",\"xpath\":\"..//phoneNumber[string-length(concat(number, ext)) gt 0]\"},{\"type\":\"email\",\"xpath\":\"..//email[text() and string-length() gt 0]\"},{\"type\":\"fax\",\"xpath\":\"..//faxNumber[text() and string-length() gt 0]\"}]}')",
+      "properties": {
+        "value": {
+          "sourcedFrom": "if(type eq \"phone\") then concat(source/number, source/ext) else source"
+        },
+        "period": {
+          "sourcedFrom": "parent",
+          "properties": {
+            "start": {
+              "sourcedFrom": "effectiveDate"
+            },
+            "end": {
+              "sourcedFrom": "expirationDate"
+            }
+          },
+          "targetEntityType": "#/definitions/Period"
+        },
+        "system": {
+          "sourcedFrom": "type"
+        },
+        "use": {
+          "sourcedFrom": "\"work\""
+        }
+      },
+      "targetEntityType": "#/definitions/ContactPoint"
+    },
+    "address": {
+      "sourcedFrom": "instance/provider/providerLocations/address",
+      "properties": {
+        "line": {
+          "sourcedFrom": "(line1|line2|line3)[string-length() gt 0]"
+        },
+        "city": {
+          "sourcedFrom": "city"
+        },
+        "district": {
+          "sourcedFrom": "county"
+        },
+        "state": {
+          "sourcedFrom": "state"
+        },
+        "postalCode": {
+          "sourcedFrom": "zip"
+        },
+        "type": {
+          "sourcedFrom": "memoryLookup(addresstype[1],'{\"MAILING\": \"postal\", \"PRIMARY\": \"physical\"}')"
+        },
+        "text": {
+          "sourcedFrom": ""
+        },
+        "use": {
+          "sourcedFrom": "memoryLookup(addresstype[1],'{\"LEGAL\": \"billing\", \"PRIMARY\": \"work\"}')"
+        },
+        "period": {
+          "sourcedFrom": "parent",
+          "properties": {
+            "start": {
+              "sourcedFrom": "effectiveDate"
+            },
+            "end": {
+              "sourcedFrom": "expirationDate"
+            }
+          },
+          "targetEntityType": "#/definitions/Period"
+        },
+        "country": {
+          "sourcedFrom": "\"USA\""
+        }
+      },
+      "targetEntityType": "#/definitions/Address"
+    },
+    "meta": {
+      "sourcedFrom": ".",
+      "properties": {
+        "id": {
+          "sourcedFrom": "document/envelope/headers/metadata/publicID"
+        },
+        "versionId": {
+          "sourcedFrom": "document/envelope/headers/metadata/hashValue"
+        },
+        "lastUpdated": {
+          "sourcedFrom": "document/envelope/headers/metadata/ingestTimestamp"
+        },
+        "source": {
+          "sourcedFrom": "\"MMIS-PROVIDER\""
+        },
+        "profile": {
+          "sourcedFrom": "\"http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/plannet-Practitioner\""
+        }
+      },
+      "targetEntityType": "#/definitions/Meta"
+    },
+    "language": {
+      "sourcedFrom": "\"en-us\""
+    },
+    "active": {
+      "sourcedFrom": "if(instance/provider/providerEnrollment[1]/status eq 'TERMINATED') then fn:false() else fn:true()"
+    },
+    "qualification": {
+      "sourcedFrom": "",
+      "properties": {
+        "code": {
+          "sourcedFrom": "",
+          "properties": {
+            "coding": {
+              "sourcedFrom": ".",
+              "properties": {
+                "code": {
+                  "sourcedFrom": ""
+                },
+                "system": {
+                  "sourcedFrom": ""
+                }
+              },
+              "targetEntityType": "#/definitions/Coding"
+            }
+          },
+          "targetEntityType": "#/definitions/CodeableConcept"
+        }
+      },
+      "targetEntityType": "#/definitions/Qualification"
+    },
+    "communication": {
+      "sourcedFrom": "instance/provider/providerLocations/languages",
+      "properties": {
+        "coding": {
+          "sourcedFrom": ".",
+          "properties": {
+            "code": {
+              "sourcedFrom": "memoryLookup(key,'{\"ARABIC\": \"ar\", \"ENGLISH\": \"en\", \"FRENCH\": \"fr\", \"GERMAN\": \"de\", \"HMONG\": \"zh-hk\", \"MANDARIN\": \"zh\", \"SPANISH\": \"es\"}')"
+            },
+            "display": {
+              "sourcedFrom": "memoryLookup(key,'{\"ARABIC\": \"Arabic\", \"ENGLISH\": \"English\", \"FRENCH\": \"French\", \"GERMAN\": \"German\", \"HMONG\": \"Hmong\", \"MANDARIN\": \"Mandarin\", \"SPANISH\": \"Spanish\"}')"
+            },
+            "system": {
+              "sourcedFrom": "\"urn:ietf:bcp:47\""
+            }
+          },
+          "targetEntityType": "#/definitions/Coding"
+        }
+      },
+      "targetEntityType": "#/definitions/CodeableConcept"
+    },
+    "resourceType": {
+      "sourcedFrom": "\"Practitioner\""
+    }
+  }
+}

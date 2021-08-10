@@ -1,0 +1,75 @@
+plugins {
+   // Gradle Properties plugin
+    id 'net.saliman.properties' version '1.4.6'
+	id 'org.springframework.boot' version '2.4.5'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'com.marklogic.ml-development-tools' version '5.4.0'
+	id 'java'
+	id 'war'
+	id "io.freefair.war-overlay" version "6.0.0-m2"
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+	//mavenCentral()
+	jcenter()
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'com.squareup.okhttp3:okhttp:4.7.2'
+    }
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.slf4j:slf4j-api:1.7.22'
+	implementation 'com.marklogic:marklogic-client-api:5.4.0'
+    implementation("com.squareup.okhttp3:okhttp") {
+        version {
+            strictly '4.9.0'
+        }
+    }
+	
+	testImplementation "org.junit.jupiter:junit-jupiter-api:5.4.1"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.4.1"
+	implementation "com.fasterxml.jackson.core:jackson-databind:2.11.0"
+	testRuntimeOnly "javax.xml.bind:jaxb-api:2.3.0"
+
+	// Force usage of logback for logging
+	testRuntimeOnly "ch.qos.logback:logback-classic:1.1.8"
+	testRuntimeOnly group: "org.slf4j", name: "jcl-over-slf4j", version: "1.7.22"
+	testRuntimeOnly group: "org.slf4j", name: "slf4j-api", version: "1.7.22"
+
+	implementation group: 'ca.uhn.hapi.fhir', name: 'org.hl7.fhir.r5', version: '5.3.11'
+	implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-structures-r5', version: '5.3.3'
+	implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-jpaserver-base', version: '5.3.3'
+	implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-base', version: '5.3.3'
+	//implementation "org.springframework:spring-jdbc:5.3.6"
+	//implementation "com.h2database:h2:1.4.200"
+	
+	testRuntimeOnly group: 'ca.uhn.hapi.fhir', name: 'org.hl7.fhir.r5', version: '5.3.11'
+
+	// test page overlay deps
+	compile group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-testpage-overlay', version: '5.3.3'
+	compile group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-testpage-overlay', version: '5.3.3', classifier: 'classes'
+	
+}
+
+war {
+    overlays {
+        testpage {
+            from "ca.uhn.hapi.fhir:hapi-fhir-testpage-overlay:5.3.3" 
+            enabled = true
+        }
+    }
+}
+
+test {
+	useJUnitPlatform()
+}

@@ -1,0 +1,11 @@
+{
+  "server-name" : "%%NAME%%",
+  "group-name" : "%%GROUP%%",
+  "server-type" : "http",
+  "enabled" : true,
+  "root" : "/",
+  "port" : %%mlDataServicesPort%%,
+  "authentication" : "digest",
+  "content-database" : "%%mlStagingDbName%%",
+  "modules-database" : "%%mlModulesDbName%%"
+}

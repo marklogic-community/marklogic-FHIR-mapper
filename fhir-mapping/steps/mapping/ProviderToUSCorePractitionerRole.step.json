@@ -1,0 +1,107 @@
+{
+  "collections": [
+    "ProviderToUSCorePractitionerRole",
+    "USCorePractitionerRole"
+  ],
+  "additionalCollections": [ ],
+  "permissions": "data-hub-common,read,data-hub-common,update",
+  "batchSize": 100,
+  "validateEntity": "doNotValidate",
+  "targetFormat": "JSON",
+  "name": "ProviderToUSCorePractitionerRole",
+  "targetEntityType": "http://example.org/USCorePractitionerRole-1.0.0/USCorePractitionerRole",
+  "description": "",
+  "selectedSource": "collection",
+  "sourceQuery": "cts.collectionQuery(['pretransformed-ProviderAffiliation'])",
+  "sourceDatabase": "data-hub-STAGING",
+  "targetDatabase": "data-hub-FINAL",
+  "headers": { },
+  "interceptors": [ ],
+  "provenanceGranularityLevel": "coarse",
+  "customHook": { },
+  "stepDefinitionName": "entity-services-mapping",
+  "stepDefinitionType": "mapping",
+  "stepId": "ProviderToUSCorePractitionerRole-mapping",
+  "lastUpdated": "2021-05-04T08:18:37.6928387-06:00",
+  "properties": {
+    "id": {
+      "sourcedFrom": "concat(/document/envelope/headers/metadata/publicID, \"-PractitionerRole-\", /index)"
+    },
+    "practitioner": {
+      "sourcedFrom": "/document",
+      "properties": {
+        "type": {
+          "sourcedFrom": "\"Practitioner\""
+        },
+        "reference": {
+          "sourcedFrom": "concat(\"Practitioner/\", envelope/headers/metadata/publicID)"
+        }
+      },
+      "targetEntityType": "#/definitions/Reference"
+    },
+    "organization": {
+      "sourcedFrom": "/node",
+      "properties": {
+        "type": {
+          "sourcedFrom": "\"Organization\""
+        },
+        "identifier": {
+          "sourcedFrom": "if(identifiers/key = 'NPI') then identifiers[key eq 'NPI'] else (identifiers[key eq 'MMIS'])",
+          "properties": {
+            "system": {
+              "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"https://www.scdhhs.gov/PROVIDER\", \"NPI\": \"http://hl7.org/fhir/sid/us-npi\", \"SSN\": \"http://hl7.org/fhir/sid/us-ssn\", \"EIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"PTIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"ITIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"NCPDP\": \"https://online.ncpdp.org\", \"DEA\": \"https://www.deadiversion.usdoj.gov\"}')"
+            },
+            "value": {
+              "sourcedFrom": "value"
+            },
+            "type": {
+              "sourcedFrom": ".[key = ('MMIS', 'EIN', 'PTIN', 'ITIN', 'NCPDP', 'DEA')]",
+              "properties": {
+                "text": {
+                  "sourcedFrom": "key"
+                },
+                "coding": {
+                  "sourcedFrom": ".",
+                  "properties": {
+                    "system": {
+                      "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"EIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"PTIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"ITIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"NCPDP\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"DEA\": \"http://terminology.hl7.org/CodeSystem/v2-0203\"}')"
+                    },
+                    "code": {
+                      "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"PRN\", \"EIN\": \"EN\", \"PTIN\": \"TAX\", \"ITIN\": \"TAX\", \"NCPDP\": \"RPH\", \"DEA\": \"DEA\"}')"
+                    },
+                    "display": {
+                      "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"Provider number\", \"EIN\": \"Employer number\", \"PTIN\": \"Tax ID number\", \"ITIN\": \"Tax ID number\", \"NCPDP\": \"Pharmacist license number\", \"DEA\": \"Drug Enforcement Administration registration number\"}')"
+                    }
+                  }
+                }
+              }
+            },
+            "use": {
+              "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"official\", \"NPI\": \"official\", \"SSN\": \"secondary\", \"EIN\": \"secondary\", \"PTIN\": \"secondary\", \"ITIN\": \"secondary\", \"NCPDP\": \"secondary\", \"DEA\": \"secondary\"}')"
+            }
+          },
+          "targetEntityType": "#/definitions/Identifier"
+        }
+      },
+      "targetEntityType": "#/definitions/Reference"
+    },
+    "location": {
+      "sourcedFrom": "document/envelope/instance/provider/providerLocations[address/addresstype = 'PRACTICE']",
+      "properties": {
+        "reference": {
+          "sourcedFrom": "concat(\"Location/\", /document/envelope/headers/metadata/publicID, \"-providerLocations-\", count(preceding-sibling::providerLocations)+1)"
+        },
+        "type": {
+          "sourcedFrom": "\"Location\""
+        }
+      },
+      "targetEntityType": "#/definitions/Reference"
+    },
+    "active": {
+      "sourcedFrom": "isActive(providerLocations/effectiveDate, providerLocations/expirationDate)"
+    },
+    "resourceType": {
+      "sourcedFrom": "\"PractitionerRole\""
+    }
+  }
+}

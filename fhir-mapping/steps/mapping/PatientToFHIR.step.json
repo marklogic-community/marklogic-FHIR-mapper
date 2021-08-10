@@ -1,0 +1,312 @@
+{
+  "collections": [
+    "PatientToFHIR",
+    "USCorePatient"
+  ],
+  "additionalCollections": [ ],
+  "permissions": "data-hub-common,read,data-hub-common,update",
+  "batchSize": 100,
+  "validateEntity": "doNotValidate",
+  "targetFormat": "JSON",
+  "name": "PatientToFHIR",
+  "targetEntityType": "http://example.org/USCorePatient-1.0.0/USCorePatient",
+  "description": "",
+  "selectedSource": "collection",
+  "sourceQuery": "cts.collectionQuery(['IndividualMember'])",
+  "sourceDatabase": "data-hub-STAGING",
+  "targetDatabase": "data-hub-FINAL",
+  "headers": { },
+  "interceptors": [ ],
+  "provenanceGranularityLevel": "coarse",
+  "customHook": { },
+  "stepDefinitionName": "entity-services-mapping",
+  "stepDefinitionType": "mapping",
+  "stepId": "PatientToFHIR-mapping",
+  "lastUpdated": "2021-05-03T10:56:36.963535-06:00",
+  "properties": {
+    "id": {
+      "sourcedFrom": "instance/member/publicID"
+    },
+    "identifier": {
+      "sourcedFrom": "instance/member/identifiers",
+      "properties": {
+        "value": {
+          "sourcedFrom": "value"
+        },
+        "type": {
+          "sourcedFrom": "type",
+          "properties": {
+            "coding": {
+              "sourcedFrom": ".",
+              "properties": {
+                "system": {
+                  "sourcedFrom": "\"http://terminology.hl7.org/CodeSystem/v2-0203\""
+                },
+                "code": {
+                  "sourcedFrom": "memoryLookup(.,'{\"SSN\":\"SS\",\"MEDICAID_ID\":\"MA\"}')"
+                }
+              },
+              "targetEntityType": "#/definitions/Coding"
+            }
+          },
+          "targetEntityType": "#/definitions/CodeableConcept"
+        },
+        "system": {
+          "sourcedFrom": "memoryLookup(type,'{\"SSN\":\"http://hl7.org/fhir/sid/us-ssn\"}')"
+        }
+      },
+      "targetEntityType": "#/definitions/Identifier"
+    },
+    "name": {
+      "sourcedFrom": "instance/member",
+      "properties": {
+        "family": {
+          "sourcedFrom": "lastName"
+        },
+        "given": {
+          "sourcedFrom": "firstName|middleName"
+        },
+        "prefix": {
+          "sourcedFrom": "namePrefix"
+        },
+        "suffix": {
+          "sourcedFrom": "nameSuffix"
+        }
+      },
+      "targetEntityType": "#/definitions/HumanName"
+    },
+    "gender": {
+      "sourcedFrom": "lower-case(instance/member/sex)"
+    },
+    "birthDate": {
+      "sourcedFrom": "instance/member/dateOfBirth"
+    },
+    "deceasedDateTime": {
+      "sourcedFrom": "instance/member/dateOfDeath"
+    },
+    "maritalStatus": {
+      "sourcedFrom": "instance/member/maritalStatus",
+      "properties": {
+        "text": {
+          "sourcedFrom": "."
+        },
+        "coding": {
+          "sourcedFrom": ".",
+          "properties": {
+            "code": {
+              "sourcedFrom": "memoryLookup(.,'{\"Unknown\":\"UNK\"}')"
+            },
+            "system": {
+              "sourcedFrom": "\"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\""
+            },
+            "display": {
+              "sourcedFrom": "."
+            }
+          },
+          "targetEntityType": "#/definitions/Coding"
+        }
+      },
+      "targetEntityType": "#/definitions/CodeableConcept"
+    },
+    "address": {
+      "sourcedFrom": "instance/member/addresses",
+      "properties": {
+        "line": {
+          "sourcedFrom": "line1|line2|line3"
+        },
+        "city": {
+          "sourcedFrom": "city"
+        },
+        "district": {
+          "sourcedFrom": "county"
+        },
+        "state": {
+          "sourcedFrom": "state"
+        },
+        "postalCode": {
+          "sourcedFrom": "zip"
+        },
+        "type": {
+          "sourcedFrom": ""
+        },
+        "text": {
+          "sourcedFrom": ""
+        },
+        "use": {
+          "sourcedFrom": ""
+        },
+        "period": {
+          "sourcedFrom": "",
+          "targetEntityType": "#/definitions/Period"
+        },
+        "country": {
+          "sourcedFrom": "\"USA\""
+        }
+      },
+      "targetEntityType": "#/definitions/Address"
+    },
+    "meta": {
+      "sourcedFrom": "document/envelope/headers",
+      "properties": {
+        "id": {
+          "sourcedFrom": "/instance/member/publicID"
+        },
+        "versionId": {
+          "sourcedFrom": "hashValue"
+        },
+        "lastUpdated": {
+          "sourcedFrom": "ingestTimestamp"
+        },
+        "profile": {
+          "sourcedFrom": "\"http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/plannet-Patient\""
+        }
+      },
+      "targetEntityType": "#/definitions/Meta"
+    },
+    "language": {
+      "sourcedFrom": "\"en-us\""
+    },
+    "active": {
+      "sourcedFrom": "instance/member/status/isAlive"
+    },
+    "resourceType": {
+      "sourcedFrom": "\"Patient\""
+    },
+    "communication": {
+      "sourcedFrom": "instance/member",
+      "properties": {
+        "language": {
+          "sourcedFrom": ".",
+          "properties": {
+            "coding": {
+              "sourcedFrom": ".",
+              "properties": {
+                "code": {
+                  "sourcedFrom": "memoryLookup(language,'{\"E\":\"en-US\"}')"
+                },
+                "system": {
+                  "sourcedFrom": "\"http://hl7.org/fhir/ValueSet/languages\""
+                }
+              },
+              "targetEntityType": "#/definitions/Coding"
+            }
+          },
+          "targetEntityType": "#/definitions/CodeableConcept"
+        }
+      },
+      "targetEntityType": "#/definitions/Communication"
+    },
+    "telecom": {
+      "sourcedFrom": "instance/member/contacts",
+      "properties": {
+        "value": {
+          "sourcedFrom": "value"
+        },
+        "system": {
+          "sourcedFrom": "memoryLookup(type,'{\"HOME_PHONE\":\"phone\"}')"
+        },
+        "use": {
+          "sourcedFrom": "memoryLookup(type,'{\"HOME_PHONE\":\"home\"}')"
+        }
+      },
+      "targetEntityType": "#/definitions/ContactPoint"
+    },
+    "contact": {
+      "sourcedFrom": "instance/member/families",
+      "properties": {
+        "relationship": {
+          "sourcedFrom": "head",
+          "properties": {
+            "coding": {
+              "sourcedFrom": ".",
+              "properties": {
+                "system": {
+                  "sourcedFrom": "\"http://terminology.hl7.org/CodeSystem/v2-0131\""
+                },
+                "code": {
+                  "sourcedFrom": "\"C\""
+                }
+              },
+              "targetEntityType": "#/definitions/Coding"
+            }
+          },
+          "targetEntityType": "#/definitions/CodeableConcept"
+        },
+        "name": {
+          "sourcedFrom": "head",
+          "properties": {
+            "family": {
+              "sourcedFrom": "lastName"
+            },
+            "given": {
+              "sourcedFrom": "firstName|middleName"
+            },
+            "prefix": {
+              "sourcedFrom": "namePrefix"
+            },
+            "suffix": {
+              "sourcedFrom": "nameSuffix"
+            }
+          },
+          "targetEntityType": "#/definitions/HumanName"
+        },
+        "gender": {
+          "sourcedFrom": "lower-case(string(head/sex))"
+        },
+        "telecom": {
+          "sourcedFrom": "head/contacts",
+          "properties": {
+            "value": {
+              "sourcedFrom": "value"
+            },
+            "system": {
+              "sourcedFrom": "memoryLookup(type,'{\"HOME_PHONE\":\"phone\"}')"
+            },
+            "use": {
+              "sourcedFrom": "memoryLookup(type,'{\"HOME_PHONE\":\"home\"}')"
+            }
+          },
+          "targetEntityType": "#/definitions/ContactPoint"
+        },
+        "address": {
+          "sourcedFrom": "head/addresses",
+          "properties": {
+            "line": {
+              "sourcedFrom": "line1|line2|line3"
+            },
+            "city": {
+              "sourcedFrom": "city"
+            },
+            "district": {
+              "sourcedFrom": "county"
+            },
+            "state": {
+              "sourcedFrom": "state"
+            },
+            "postalCode": {
+              "sourcedFrom": "zip"
+            },
+            "type": {
+              "sourcedFrom": ""
+            },
+            "text": {
+              "sourcedFrom": ""
+            },
+            "use": {
+              "sourcedFrom": ""
+            },
+            "period": {
+              "sourcedFrom": "",
+              "targetEntityType": "#/definitions/Period"
+            },
+            "country": {
+              "sourcedFrom": "\"USA\""
+            }
+          },
+          "targetEntityType": "#/definitions/Address"
+        }
+      },
+      "targetEntityType": "#/definitions/Contact"
+    }
+  }
+}
