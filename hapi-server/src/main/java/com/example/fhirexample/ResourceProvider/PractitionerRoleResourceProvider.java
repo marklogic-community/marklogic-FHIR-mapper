@@ -51,30 +51,8 @@ public class PractitionerRoleResourceProvider implements IResourceProvider {
     }
 
     @Search
-    public List<DomainResource> getAllPractitionerRoles(@Offset Integer theOffset,
-                                                  @Count Integer theCount,
-                                                  @IncludeParam(allow={"PractitionerRole:practitioner", "PractitionerRole:location"}) Set<Include> theIncludes) {
-        List<DomainResource> results = new ArrayList<>();
-        Pagination page = new Pagination(theOffset, theCount);
-        try {
-            JsonNode rootNode;
-            rootNode = MLSearch.on(thisClient).search(null, page.getOffset(), page.getCount());
-            List<PractitionerRole> practitionerRoles = getMLPractitionerRoles(rootNode);
-
-            results.addAll(practitionerRoles);
-            if (theIncludes.contains(new Include("PractitionerRole:practitioner"))) {
-                List<Practitioner> practitioners = getPractitionerInclude(practitionerRoles);    
-                results.addAll(practitioners);
-            }
-        } catch (Exception ex) {
-            throw new ResourceNotFoundException(ex.getMessage());
-        }
-        return results;
-    }
-
-    @Search
-    public List<DomainResource> findPractitionerRolesByPractitioner(
-            @RequiredParam(name=PractitionerRole.SP_PRACTITIONER) StringAndListParam theParam,
+    public List<DomainResource> search(
+            @OptionalParam(name=PractitionerRole.SP_PRACTITIONER) StringAndListParam practitioner,
             @Offset Integer theOffset,
             @Count Integer theCount,
             @IncludeParam(allow={"PractitionerRole:practitioner"}) Set<Include> theIncludes) {
@@ -84,7 +62,7 @@ public class PractitionerRoleResourceProvider implements IResourceProvider {
         Pagination page = new Pagination(theOffset, theCount);
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            List<SearchCriteria> searchCriteriaList = searchCriteria(PractitionerRole.SP_PRACTITIONER, theParam);
+            List<SearchCriteria> searchCriteriaList = searchCriteria(PractitionerRole.SP_PRACTITIONER, practitioner);
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
             JsonNode rootNode = PractitionerRoleSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
