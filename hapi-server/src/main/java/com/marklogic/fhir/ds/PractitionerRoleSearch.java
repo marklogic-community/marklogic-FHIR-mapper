@@ -47,14 +47,32 @@ public interface PractitionerRoleSearch {
             private DatabaseClient dbClient;
             private BaseProxy baseProxy;
 
+            private BaseProxy.DBFunctionRequest req_read;
             private BaseProxy.DBFunctionRequest req_search;
 
             private PractitionerRoleSearchImpl(DatabaseClient dbClient, JSONWriteHandle servDecl) {
                 this.dbClient  = dbClient;
                 this.baseProxy = new BaseProxy("/data-services/practitionerRole/", servDecl);
 
+                this.req_read = this.baseProxy.request(
+                    "read.sjs", BaseProxy.ParameterValuesKind.SINGLE_ATOMIC);
                 this.req_search = this.baseProxy.request(
                     "search.sjs", BaseProxy.ParameterValuesKind.MULTIPLE_MIXED);
+            }
+
+            @Override
+            public com.fasterxml.jackson.databind.JsonNode read(String id) {
+                return read(
+                    this.req_read.on(this.dbClient), id
+                    );
+            }
+            private com.fasterxml.jackson.databind.JsonNode read(BaseProxy.DBFunctionRequest request, String id) {
+              return BaseProxy.JsonDocumentType.toJsonNode(
+                request
+                      .withParams(
+                          BaseProxy.atomicParam("id", false, BaseProxy.StringType.fromString(id))
+                          ).responseSingle(false, Format.JSON)
+                );
             }
 
             @Override
@@ -77,6 +95,14 @@ public interface PractitionerRoleSearch {
 
         return new PractitionerRoleSearchImpl(db, serviceDeclaration);
     }
+
+  /**
+   * Invokes the read operation on the database server
+   *
+   * @param id	Id to read
+   * @return	
+   */
+    com.fasterxml.jackson.databind.JsonNode read(String id);
 
   /**
    * Invokes the search operation on the database server

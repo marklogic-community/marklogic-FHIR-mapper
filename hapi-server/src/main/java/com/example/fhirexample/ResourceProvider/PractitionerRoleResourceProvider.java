@@ -50,6 +50,20 @@ public class PractitionerRoleResourceProvider implements IResourceProvider {
         return PractitionerRole.class;
     }
 
+    @Read
+    public PractitionerRole read(@IdParam IdType id) {
+        // get the id part to search on
+        String idPart = id.getIdPart();
+
+        // perform the search
+        JsonNode rootNode = PractitionerRoleSearch.on(thisClient).read(idPart);
+
+        // parse the result
+        PractitionerRole result = thisParser.parseResource(PractitionerRole.class, rootNode.toString());
+
+        return result;
+    }
+
     @Search
     public List<DomainResource> search(
             @OptionalParam(name=PractitionerRole.SP_PRACTITIONER) StringAndListParam practitioner,
