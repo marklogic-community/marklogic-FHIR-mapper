@@ -1,0 +1,187 @@
+{
+  "collections": [
+    "ProviderToFHIRLocation",
+    "USCoreLocation"
+  ],
+  "additionalCollections": [ ],
+  "permissions": "data-hub-common,read,data-hub-common,update",
+  "batchSize": 100,
+  "validateEntity": "doNotValidate",
+  "targetFormat": "JSON",
+  "name": "ProviderToFHIRLocation",
+  "targetEntityType": "http://example.org/USCoreLocation-1.0.0/USCoreLocation",
+  "description": "",
+  "selectedSource": "collection",
+  "sourceQuery": "cts.collectionQuery(['pretransformed-ProviderLocation'])",
+  "sourceDatabase": "data-hub-STAGING",
+  "targetDatabase": "data-hub-FINAL",
+  "headers": { },
+  "interceptors": [ ],
+  "provenanceGranularityLevel": "coarse",
+  "customHook": { },
+  "stepDefinitionName": "entity-services-mapping",
+  "stepDefinitionType": "mapping",
+  "stepId": "ProviderToFHIRLocation-mapping",
+  "lastUpdated": "2021-04-29T13:42:46.1926207-06:00",
+  "properties": {
+    "id": {
+      "sourcedFrom": "concat(document/envelope/headers/metadata/publicID, \"-providerLocations-\", index)"
+    },
+    "meta": {
+      "sourcedFrom": ".",
+      "properties": {
+        "id": {
+          "sourcedFrom": "concat(document/envelope/headers/metadata/publicID, \"-providerLocations-\", index)"
+        },
+        "versionId": {
+          "sourcedFrom": "document/envelope/headers/metadata/hashValue"
+        },
+        "lastUpdated": {
+          "sourcedFrom": "document/envelope/headers/metadata/ingestTimestamp"
+        },
+        "profile": {
+          "sourcedFrom": "\"http://hl7.org/fhir/us/davinci-pdex-plan-net/STU1/StructureDefinition-plannet-Location.html\""
+        },
+        "source": {
+          "sourcedFrom": "\"MMIS-PROVIDER\""
+        }
+      },
+      "targetEntityType": "#/definitions/Meta"
+    },
+    "language": {
+      "sourcedFrom": "\"en-us\""
+    },
+    "status": {
+      "sourcedFrom": "if(isActive(providerLocations/effectiveDate, providerLocations/expirationDate)) then \"active\" else \"inactive\""
+    },
+    "name": {
+      "sourcedFrom": "if(string-length(providerLocations/address/line2) eq 0) then concat(providerLocations/address/line1, \", \", providerLocations/address/city, \", \", providerLocations/address/state) else concat(providerLocations/address/line2, \", \", providerLocations/address/line1, \", \", providerLocations/address/city, \", \", providerLocations/address/state)"
+    },
+    "telecom": {
+      "sourcedFrom": "flatToMultipleEntries(providerLocations,'{\"breakout\":[{\"type\":\"phone\",\"xpath\":\"phoneNumber[string-length(concat(number, ext)) gt 0]\"},{\"type\":\"email\",\"xpath\":\"email[text() and string-length() gt 0]\"},{\"type\":\"fax\",\"xpath\":\"faxNumber[text() and string-length() gt 0]\"}]}')",
+      "properties": {
+        "system": {
+          "sourcedFrom": "type"
+        },
+        "value": {
+          "sourcedFrom": "if(type eq \"phone\") then concat(source/number, source/ext) else source"
+        },
+        "use": {
+          "sourcedFrom": "\"work\""
+        },
+        "period": {
+          "sourcedFrom": "parent",
+          "properties": {
+            "id": {
+              "sourcedFrom": ""
+            },
+            "start": {
+              "sourcedFrom": "effectiveDate"
+            },
+            "end": {
+              "sourcedFrom": "expirationDate"
+            }
+          },
+          "targetEntityType": "#/definitions/Period"
+        },
+        "id": {
+          "sourcedFrom": ""
+        }
+      },
+      "targetEntityType": "#/definitions/ContactPoint"
+    },
+    "address": {
+      "sourcedFrom": "providerLocations/address",
+      "properties": {
+        "line": {
+          "sourcedFrom": "(line1|line2|line3)[string-length() gt 0]"
+        },
+        "city": {
+          "sourcedFrom": "city"
+        },
+        "district": {
+          "sourcedFrom": "county"
+        },
+        "state": {
+          "sourcedFrom": "state"
+        },
+        "postalCode": {
+          "sourcedFrom": "zip"
+        },
+        "type": {
+          "sourcedFrom": "memoryLookup(addresstype[1],'{\"MAILING\": \"postal\", \"PRIMARY\": \"physical\"}')"
+        },
+        "country": {
+          "sourcedFrom": "\"USA\""
+        },
+        "use": {
+          "sourcedFrom": "memoryLookup(addresstype[1],'{\"LEGAL\": \"billing\", \"PRIMARY\": \"work\"}')"
+        },
+        "period": {
+          "sourcedFrom": "..",
+          "properties": {
+            "start": {
+              "sourcedFrom": "effectiveDate"
+            },
+            "end": {
+              "sourcedFrom": "expirationDate"
+            }
+          },
+          "targetEntityType": "#/definitions/Period"
+        }
+      },
+      "targetEntityType": "#/definitions/Address"
+    },
+    "resourceType": {
+      "sourcedFrom": "\"Location\""
+    },     
+    "hoursOfOperation": {
+      "sourcedFrom": "providerLocations/hours",
+      "properties": {
+        "daysOfWeek": {
+          "sourcedFrom": "lower-case(dayOfWeek)"
+        },
+        "allDay": {
+          "sourcedFrom": "isOpen24Hours"
+        },
+        "openingTime": {
+          "sourcedFrom": "openTime"
+        },
+        "closingTime": {
+          "sourcedFrom": "closeTime"
+        }
+      },
+      "targetEntityType": "#/definitions/HoursOfOperation"
+    },
+    "text": {
+      "sourcedFrom": "",
+      "properties": {
+        "id": {
+          "sourcedFrom": ""
+        }
+      },
+      "targetEntityType": "#/definitions/Narrative"
+    },
+    "identifier": {
+      "sourcedFrom": "",
+      "properties": {
+        "id": {
+          "sourcedFrom": ""
+        },
+        "type": {
+          "sourcedFrom": ""
+        }
+      },
+      "targetEntityType": "#/definitions/Identifier"
+    },
+    "operationalStatus": {
+      "sourcedFrom": "",
+      "properties": {
+        "id": {
+          "sourcedFrom": ""
+        }
+      },
+      "targetEntityType": "#/definitions/Coding"
+    }   
+  }
+}
