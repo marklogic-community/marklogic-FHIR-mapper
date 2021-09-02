@@ -1,0 +1,14 @@
+{
+  "functionName" : "read",
+  "params" : [ {
+    "name": "id",
+    "desc": "Id to read",
+    "datatype" : "string",
+    "nullable": false
+  } ],
+  "return" : {
+    "datatype" : "jsonDocument",
+    "$javaClass":"com.fasterxml.jackson.databind.JsonNode",
+    "desc" : ""
+  }
+}
