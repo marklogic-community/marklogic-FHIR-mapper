@@ -9,6 +9,7 @@ function transform(content) {
   return acceleratorHelper.basicSubNodeDocument(content, paths)
 }
 
+// utility function to help store a pre-mapped document that can drive the mapping gui as a test input
 function getURI(preMappedContent) {
   uriRoot = "/pretransformed/member/"
   uriExtension = ".json"
