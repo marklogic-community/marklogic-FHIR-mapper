@@ -1,0 +1,74 @@
+plugins {
+ 	id "java"
+   // Gradle Properties plugin
+   id 'net.saliman.properties' version '1.4.6'
+
+   // Data Hub plugin
+   id 'com.marklogic.ml-data-hub' version '5.4.2'
+   //Data services needs these
+	id 'com.marklogic.ml-development-tools' version '5.4.0'
+}
+
+// TODO - Create a single task for each entity to generate search based on a given attribute
+task generatePractitioner(type: com.marklogic.client.tools.gradle.EndpointProxiesGenTask) {
+	description = "This task is used to generate the src/main/java/com/marklogic/practitioner/Search.java class"
+	serviceDeclarationFile = 'src/main/ml-modules/root/data-services/practitioner/service.json'
+}
+
+task generatePractitionerRole(type: com.marklogic.client.tools.gradle.EndpointProxiesGenTask) {
+	description = "This task is used to generate the src/main/java/com/marklogic/practitioner/Search.java class"
+	serviceDeclarationFile = 'src/main/ml-modules/root/data-services/practitionerRole/service.json'
+}
+
+task generateLocation(type: com.marklogic.client.tools.gradle.EndpointProxiesGenTask) {
+  description = "This task is used to generate the src/main/java/com/marklogic/location/Search.java class"
+  serviceDeclarationFile = 'src/main/ml-modules/root/data-services/location/service.json'
+}
+
+task generatePatient(type: com.marklogic.client.tools.gradle.EndpointProxiesGenTask) {
+	description = "This task is used to generate the src/main/java/com/marklogic/patient/Search.java class"
+	serviceDeclarationFile = 'src/main/ml-modules/root/data-services/patient/service.json'
+}
+
+repositories {
+	jcenter()
+  maven { url "http://developer.marklogic.com/maven2/" }
+}
+
+configurations {
+  mlcp
+}
+
+test {
+	useJUnitPlatform()
+}
+
+dependencies {
+  mlcp "com.marklogic:mlcp:10.0.6.2"
+
+	implementation 'org.slf4j:slf4j-api:1.7.21'
+	implementation 'com.marklogic:marklogic-client-api:5.4.0'
+
+	testImplementation "org.junit.jupiter:junit-jupiter-api:5.4.1"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.4.1"
+	implementation "com.fasterxml.jackson.core:jackson-databind:2.11.0"
+	testRuntimeOnly "javax.xml.bind:jaxb-api:2.3.0"
+
+  implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-base', version: '5.3.3'
+  implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-structures-r4', version: '5.3.3'
+
+	// Force usage of logback for logging
+	testRuntimeOnly "ch.qos.logback:logback-classic:1.1.8"
+	testRuntimeOnly group: "org.slf4j", name: "jcl-over-slf4j", version: "1.7.22"
+	testRuntimeOnly group: "org.slf4j", name: "slf4j-api", version: "1.7.22"
+}
+
+task loadArchive(type: com.marklogic.gradle.task.MlcpTask) {
+  classpath = configurations.mlcp
+  command = "IMPORT"
+  database = "data-hub-FINAL"
+  input_file_path = "data/archive"
+  input_file_type = "archive"
+  copy_permissions = false
+  output_permissions = "rest-reader,read,rest-writer,update"
+}
