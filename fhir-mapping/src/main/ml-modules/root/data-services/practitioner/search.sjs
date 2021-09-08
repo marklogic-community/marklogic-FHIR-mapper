@@ -42,7 +42,7 @@ const searchList = search ? JSON.parse(search) : [];
 
 // search for and filter your documents if needed
 const query = cts.andQuery([
-  cts.collectionQuery('provider-dhhs-canonical'),
+  cts.collectionQuery('provider-canonical'),
   cts.jsonPropertyValueQuery("providerType", "PERSON"),
   ...searchList.map(({ field, modifier, values }) => {
     if (identifierSearchTerms.has(field)) {

@@ -29,13 +29,19 @@ const options = ["case-insensitive", "wildcarded", "whitespace-insensitive", "pu
 
 // search for and filter your documents if needed
 const query = cts.andQuery([
-  cts.collectionQuery('provider-dhhs-canonical'),
+  cts.collectionQuery('provider-canonical'),
   cts.jsonPropertyValueQuery("providerType", "PERSON"),
   ...searchList.map(({ field, modifier, values }) => {
     const searchValues = egress.searchValuesWithModifier(values, modifier)
     return cts.jsonPropertyValueQuery(fieldMap.get(field), searchValues, options)
   })
 ]);
+
+/*  Note: ...searchList.map() takes the output of the map (array of prop-val queries)
+    and inserts them into the array, rather than nesting that array into the enclosing array
+    ... = spread operator
+    {field, modifier, values} creates three vars like let field=x.field; let modifier=x.modifier etc
+*/
 
 // do the search
 const searchResults = cts.search(query);
