@@ -1,3 +1,13 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath "com.marklogic:marklogic-unit-test-client:1.1.0"
+    // classpath "com.marklogic:ml-gradle:4.2.1"
+  }
+}
+
 plugins {
  	id "java"
    // Gradle Properties plugin
@@ -7,6 +17,12 @@ plugins {
    id 'com.marklogic.ml-data-hub' version '5.4.2'
    //Data services needs these
 	id 'com.marklogic.ml-development-tools' version '5.4.0'
+}
+
+apply plugin: "com.marklogic.ml-gradle"
+
+repositories {
+  mavenCentral()
 }
 
 // TODO - Create a single task for each entity to generate search based on a given attribute
@@ -61,6 +77,10 @@ dependencies {
 	testRuntimeOnly "ch.qos.logback:logback-classic:1.1.8"
 	testRuntimeOnly group: "org.slf4j", name: "jcl-over-slf4j", version: "1.7.22"
 	testRuntimeOnly group: "org.slf4j", name: "slf4j-api", version: "1.7.22"
+
+  // an mlBundle is a zip of server-side .sjs or .xqy code that will be deployed from a repository to MarkLogic
+  mlBundle "com.marklogic:marklogic-unit-test-modules:1.1.0"
+
 }
 
 task loadArchive(type: com.marklogic.gradle.task.MlcpTask) {

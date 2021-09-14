@@ -65,7 +65,7 @@ const query = cts.andQuery([
 
       return cts.jsonPropertyScopeQuery(identifierSearchTerms.get(field), cts.andQuery(identifiers));
     } else {
-      const searchValues = egress.searchValuesWithModifier(values, modifier)
+      const searchValues = egress.wildcardedQueryValues(values, modifier)
 
       return cts.jsonPropertyValueQuery(fieldMap.get(field), searchValues,
         ["case-insensitive", "wildcarded", "whitespace-insensitive", "punctuation-insensitive"])

@@ -1,4 +1,5 @@
 'use strict';
+
 const egress = require("/fhir-accelerator/egress-mapping.sjs")
 
 // search egress practitioner
@@ -24,56 +25,21 @@ const fieldMap = new Map([
   ['address', ["name", "line1", "line2", "line3", "city", "county", "countyCode", "state","zip","addresstype"]]
 ]);
 
-const searchList = search ? JSON.parse(search) : [];
+const searchCriteriaList = search ? JSON.parse(search) : [];
 const options = ["case-insensitive", "wildcarded", "whitespace-insensitive", "punctuation-insensitive"];
 
-// search for and filter your documents if needed
-const query = cts.andQuery([
-  cts.collectionQuery('provider-canonical'),
-  cts.jsonPropertyValueQuery("providerType", "PERSON"),
-  ...searchList.map(({ field, modifier, values }) => {
-    const searchValues = egress.searchValuesWithModifier(values, modifier)
-    return cts.jsonPropertyValueQuery(fieldMap.get(field), searchValues, options)
-  })
-]);
+// define a query for the containing documents that have the collections. These will be Provider records.
+let docQuery = egress.buildQuery(searchCriteriaList, 'provider-canonical', cts.jsonPropertyValueQuery("providerType", "PERSON"), options);
+let itemQuery = egress.buildQuery(searchCriteriaList, null, null, options);
+xdmp.log("location search doc query: "+xdmp.quote(docQuery))
+xdmp.log("location search item query: "+xdmp.quote(itemQuery))
 
-/*  Note: ...searchList.map() takes the output of the map (array of prop-val queries)
-    and inserts them into the array, rather than nesting that array into the enclosing array
-    ... = spread operator
-    {field, modifier, values} creates three vars like let field=x.field; let modifier=x.modifier etc
-*/
+// do the query, sub-item filtering, and Step transform
+let result = egress.queryAndMap(docQuery, itemQuery, "//providerLocations", "ProviderToFHIRLocation", start, limit)
 
-// do the search
-const searchResults = cts.search(query);
-// Apply paging logic
-const rawDocs = fn.subsequence(searchResults, start, limit)
-// Extract matching locations
-var locations = [];
-var loopCount = 1
-for (var rawDoc of rawDocs) {
-  for (const loc of rawDoc.xpath("//providerLocations")) {
-    if (cts.contains(loc, cts.andQuery([
-            ...searchList.map(({ field, modifier, values }) => {
-              const searchValues = egress.searchValuesWithModifier(values, modifier)
-              return cts.jsonPropertyValueQuery(fieldMap.get(field), searchValues, options)
-            })])
-      )) {
-        if (locations.length <= limit && loopCount <= limit) {
-          if (loopCount >= start) {
-            locations.push(loc);            
-          }
-          loopCount++;
-        } else {
-          break;
-        }
-    }
-  };
-}// standard transform on searchResults variable
-const result = egress.transformMultiple(locations, "ProviderToFHIRLocation");
-
+// nest the array into a single object (easier to write a data service that returns an object vs an array)
 const results = {
   "results": result
 };
 
-// return the result
-results;
+results

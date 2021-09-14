@@ -49,16 +49,15 @@ const searchList = search ? JSON.parse(search) : [];
 // search for and filter your documents if needed
 const query = cts.andQuery([
   cts.collectionQuery('member-canonical'),
-  // cts.jsonPropertyValueQuery("providerType", "PERSON"),
   ...searchList.map(({ field, modifier, values }) => {
-    const searchValues = egress.searchValuesWithModifier(values, modifier)
+    const searchValues = egress.wildcardedQueryValues(values, modifier) // TODO: names and text only?
 
-    if (prefixedSearchTerms.has(field)) {
+    if (prefixedSearchTerms.has(field)) { // looks like range index list
       const xsConverterFn = prefixedSearchTerms.get(field);
       return cts.jsonPropertyRangeQuery(fieldMap.get(field), modifierPrefixMap.get(modifier), xs[xsConverterFn](values[0]))
     } else if (identifierSearchTerms.has(field)) {
       const identifiers = values.map(valueString => {
-        const index = valueString.lastIndexOf('|');
+        const index = valueString.lastIndexOf('|'); // TODO
         const system = valueString.slice(0, index);
         const value = valueString.slice(index + 1);
         const searchProperties = [];

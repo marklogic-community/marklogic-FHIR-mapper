@@ -27,12 +27,14 @@ search JSON format
 */
 
 // search for and filter your documents if needed
+// this assumes this is an ID search using JSON property publicID
+// the search JSON structure MUST specify field: 'practitioner' for anything to work
 const query = cts.andQuery([
   cts.collectionQuery('provider-canonical'),
   cts.jsonPropertyValueQuery("providerType", "PERSON"),
   ...searchList.map(({ field, modifier, values }) => {
     if(field === "practitioner") {
-      const searchValues = egress.searchValuesWithModifier(values, "exact")
+      const searchValues = egress.wildcardedQueryValues(values, "exact")
       return cts.jsonPropertyValueQuery('publicID', searchValues)
     }
   })

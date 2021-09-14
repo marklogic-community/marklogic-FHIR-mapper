@@ -13,6 +13,16 @@ import java.util.ArrayList;
 
 import static java.util.stream.Collectors.toList;
 
+/** 
+ * Java class representing a JSON 
+ *  { field: <string>, 
+ *    modifier: <string>, 
+ *    values: [<string>, <string>, ...]
+ *  } 
+ * structure.
+ * ObjectMapper.valueToTree() will convert this into the JSON portion of the payload required by our typical
+ * MarkLogic data services
+ */
 @JsonAutoDetect(fieldVisibility = Visibility.ANY)
 public class SearchCriteria {
     String field;

@@ -25,7 +25,7 @@ const query = cts.andQuery([
   cts.collectionQuery('provider-dhhs-canonical'),
   cts.jsonPropertyValueQuery("providerType", "PERSON"),
   ...searchList.map(({ field, modifier, values }) => {
-    const searchValues = egress.searchValuesWithModifier(values, modifier)
+    const searchValues = egress.wildcardedQueryValues(values, modifier)
     return cts.jsonPropertyValueQuery(fieldMap.get(field), searchValues, options)
   })
 ]);

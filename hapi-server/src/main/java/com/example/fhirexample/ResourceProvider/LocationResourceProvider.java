@@ -79,6 +79,7 @@ public class LocationResourceProvider implements IResourceProvider {
             @Count Integer count) {
         List<Location> locations = new ArrayList<Location>();
         Pagination page = new Pagination(offset, count);
+        System.out.println("FIND LOCATION BY overall search");
 
         List<SearchCriteria> searchTerms = new ArrayList<SearchCriteria>();
         searchTerms.addAll(searchCriteria(Location.SP_IDENTIFIER, identifier));
@@ -90,6 +91,7 @@ public class LocationResourceProvider implements IResourceProvider {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode params = objectMapper.valueToTree(searchTerms);
+            System.out.println("PARAMS:" + params.toString());
             JsonNode rootNode = MLSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
             locations = getMLLocations(rootNode);
         } catch (Exception ex) {
@@ -105,6 +107,7 @@ public class LocationResourceProvider implements IResourceProvider {
             @Count Integer theCount) {
         List<Location> locations = new ArrayList<Location>();
         Pagination page = new Pagination(theOffset, theCount);
+        System.out.println("FIND LOCATION BY LAST ID");
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             List<SearchCriteria> searchTerms = new ArrayList<SearchCriteria>();
@@ -126,6 +129,7 @@ public class LocationResourceProvider implements IResourceProvider {
             @Count Integer theCount) {
         List<Location> locations = new ArrayList<Location>();
         Pagination page = new Pagination(theOffset, theCount);
+        System.out.println("FIND LOCATION BY LAST UPDATED");
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             List<SearchCriteria> searchTerms = new ArrayList<SearchCriteria>();
