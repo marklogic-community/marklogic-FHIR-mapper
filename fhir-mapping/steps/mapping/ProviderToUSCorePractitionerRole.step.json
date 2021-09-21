@@ -49,7 +49,7 @@
           "sourcedFrom": "if(identifiers/key = 'NPI') then identifiers[key eq 'NPI'] else (identifiers[key eq 'MMIS'])",
           "properties": {
             "system": {
-              "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"https://www.dhhs.gov/PROVIDER\", \"NPI\": \"http://hl7.org/fhir/sid/us-npi\", \"SSN\": \"http://hl7.org/fhir/sid/us-ssn\", \"EIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"PTIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"ITIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"NCPDP\": \"https://online.ncpdp.org\", \"DEA\": \"https://www.deadiversion.usdoj.gov\"}')"
+              "sourcedFrom": "customMemoryLookup(key,'{\"MMIS\": \"https://www.dhhs.gov/PROVIDER\", \"NPI\": \"http://hl7.org/fhir/sid/us-npi\", \"SSN\": \"http://hl7.org/fhir/sid/us-ssn\", \"EIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"PTIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"ITIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"NCPDP\": \"https://online.ncpdp.org\", \"DEA\": \"https://www.deadiversion.usdoj.gov\"}')"
             },
             "value": {
               "sourcedFrom": "value"
@@ -64,20 +64,20 @@
                   "sourcedFrom": ".",
                   "properties": {
                     "system": {
-                      "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"EIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"PTIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"ITIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"NCPDP\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"DEA\": \"http://terminology.hl7.org/CodeSystem/v2-0203\"}')"
+                      "sourcedFrom": "customMemoryLookup(key,'{\"MMIS\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"EIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"PTIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"ITIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"NCPDP\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"DEA\": \"http://terminology.hl7.org/CodeSystem/v2-0203\"}')"
                     },
                     "code": {
-                      "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"PRN\", \"EIN\": \"EN\", \"PTIN\": \"TAX\", \"ITIN\": \"TAX\", \"NCPDP\": \"RPH\", \"DEA\": \"DEA\"}')"
+                      "sourcedFrom": "customMemoryLookup(key,'{\"MMIS\": \"PRN\", \"EIN\": \"EN\", \"PTIN\": \"TAX\", \"ITIN\": \"TAX\", \"NCPDP\": \"RPH\", \"DEA\": \"DEA\"}')"
                     },
                     "display": {
-                      "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"Provider number\", \"EIN\": \"Employer number\", \"PTIN\": \"Tax ID number\", \"ITIN\": \"Tax ID number\", \"NCPDP\": \"Pharmacist license number\", \"DEA\": \"Drug Enforcement Administration registration number\"}')"
+                      "sourcedFrom": "customMemoryLookup(key,'{\"MMIS\": \"Provider number\", \"EIN\": \"Employer number\", \"PTIN\": \"Tax ID number\", \"ITIN\": \"Tax ID number\", \"NCPDP\": \"Pharmacist license number\", \"DEA\": \"Drug Enforcement Administration registration number\"}')"
                     }
                   }
                 }
               }
             },
             "use": {
-              "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"official\", \"NPI\": \"official\", \"SSN\": \"secondary\", \"EIN\": \"secondary\", \"PTIN\": \"secondary\", \"ITIN\": \"secondary\", \"NCPDP\": \"secondary\", \"DEA\": \"secondary\"}')"
+              "sourcedFrom": "customMemoryLookup(key,'{\"MMIS\": \"official\", \"NPI\": \"official\", \"SSN\": \"secondary\", \"EIN\": \"secondary\", \"PTIN\": \"secondary\", \"ITIN\": \"secondary\", \"NCPDP\": \"secondary\", \"DEA\": \"secondary\"}')"
             }
           },
           "targetEntityType": "#/definitions/Identifier"
