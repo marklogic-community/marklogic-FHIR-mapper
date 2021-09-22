@@ -31,7 +31,7 @@
       "sourcedFrom": "instance/provider/identifiers[key = ('MMIS', 'NPI', 'SSN', 'EIN', 'PTIN', 'ITIN', 'NCPDP', 'DEA')]",
       "properties": {
         "system": {
-          "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"https://www.dhhs.gov/PROVIDER\", \"NPI\": \"http://hl7.org/fhir/sid/us-npi\", \"SSN\": \"http://hl7.org/fhir/sid/us-ssn\", \"EIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"PTIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"ITIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"NCPDP\": \"https://online.ncpdp.org\", \"DEA\": \"https://www.deadiversion.usdoj.gov\"}')"
+          "sourcedFrom": "customMemoryLookup(key,'{\"MMIS\": \"https://www.dhhs.gov/PROVIDER\", \"NPI\": \"http://hl7.org/fhir/sid/us-npi\", \"SSN\": \"http://hl7.org/fhir/sid/us-ssn\", \"EIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"PTIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"ITIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"NCPDP\": \"https://online.ncpdp.org\", \"DEA\": \"https://www.deadiversion.usdoj.gov\"}')"
         },
         "value": {
           "sourcedFrom": "value"
@@ -46,13 +46,13 @@
               "sourcedFrom": ".",
               "properties": {
                 "system": {
-                  "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"EIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"PTIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"ITIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"NCPDP\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"DEA\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"NPI\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"SSN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\"}')"
+                  "sourcedFrom": "customMemoryLookup(key,'{\"MMIS\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"EIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"PTIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"ITIN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"NCPDP\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"DEA\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"NPI\": \"http://terminology.hl7.org/CodeSystem/v2-0203\", \"SSN\": \"http://terminology.hl7.org/CodeSystem/v2-0203\"}')"
                 },
                 "code": {
-                  "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"PRN\", \"EIN\": \"EN\", \"PTIN\": \"TAX\", \"ITIN\": \"TAX\", \"NCPDP\": \"RPH\", \"DEA\": \"DEA\", \"NPI\": \"NPI\", \"SSN\": \"SS\"}')"
+                  "sourcedFrom": "customMemoryLookup(key,'{\"MMIS\": \"PRN\", \"EIN\": \"EN\", \"PTIN\": \"TAX\", \"ITIN\": \"TAX\", \"NCPDP\": \"RPH\", \"DEA\": \"DEA\", \"NPI\": \"NPI\", \"SSN\": \"SS\"}')"
                 },
                 "display": {
-                  "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"Provider number\", \"EIN\": \"Employer number\", \"PTIN\": \"Tax ID number\", \"ITIN\": \"Tax ID number\", \"NCPDP\": \"Pharmacist license number\", \"DEA\": \"Drug Enforcement Administration registration number\", \"NPI\": \"National provider identifier\", \"SSN\": \"Social Security number\"}')"
+                  "sourcedFrom": "customMemoryLookup(key,'{\"MMIS\": \"Provider number\", \"EIN\": \"Employer number\", \"PTIN\": \"Tax ID number\", \"ITIN\": \"Tax ID number\", \"NCPDP\": \"Pharmacist license number\", \"DEA\": \"Drug Enforcement Administration registration number\", \"NPI\": \"National provider identifier\", \"SSN\": \"Social Security number\"}')"
                 }
               },
               "targetEntityType": "#/definitions/Coding"
@@ -61,7 +61,7 @@
           "targetEntityType": "#/definitions/CodeableConcept"
         },
         "use": {
-          "sourcedFrom": "memoryLookup(key,'{\"MMIS\": \"official\", \"NPI\": \"official\", \"SSN\": \"secondary\", \"EIN\": \"secondary\", \"PTIN\": \"secondary\", \"ITIN\": \"secondary\", \"NCPDP\": \"secondary\", \"DEA\": \"secondary\"}')"
+          "sourcedFrom": "customMemoryLookup(key,'{\"MMIS\": \"official\", \"NPI\": \"official\", \"SSN\": \"secondary\", \"EIN\": \"secondary\", \"PTIN\": \"secondary\", \"ITIN\": \"secondary\", \"NCPDP\": \"secondary\", \"DEA\": \"secondary\"}')"
         }
       },
       "targetEntityType": "#/definitions/Identifier"
@@ -136,13 +136,13 @@
           "sourcedFrom": "zip"
         },
         "type": {
-          "sourcedFrom": "memoryLookup(addresstype[1],'{\"MAILING\": \"postal\", \"PRIMARY\": \"physical\"}')"
+          "sourcedFrom": "customMemoryLookup(addresstype[1],'{\"MAILING\": \"postal\", \"PRIMARY\": \"physical\"}')"
         },
         "text": {
           "sourcedFrom": ""
         },
         "use": {
-          "sourcedFrom": "memoryLookup(addresstype[1],'{\"LEGAL\": \"billing\", \"PRIMARY\": \"work\"}')"
+          "sourcedFrom": "customMemoryLookup(addresstype[1],'{\"LEGAL\": \"billing\", \"PRIMARY\": \"work\"}')"
         },
         "period": {
           "sourcedFrom": "parent",
@@ -220,10 +220,10 @@
           "sourcedFrom": ".",
           "properties": {
             "code": {
-              "sourcedFrom": "memoryLookup(key,'{\"ARABIC\": \"ar\", \"ENGLISH\": \"en\", \"FRENCH\": \"fr\", \"GERMAN\": \"de\", \"HMONG\": \"zh-hk\", \"MANDARIN\": \"zh\", \"SPANISH\": \"es\"}')"
+              "sourcedFrom": "customMemoryLookup(key,'{\"ARABIC\": \"ar\", \"ENGLISH\": \"en\", \"FRENCH\": \"fr\", \"GERMAN\": \"de\", \"HMONG\": \"zh-hk\", \"MANDARIN\": \"zh\", \"SPANISH\": \"es\"}')"
             },
             "display": {
-              "sourcedFrom": "memoryLookup(key,'{\"ARABIC\": \"Arabic\", \"ENGLISH\": \"English\", \"FRENCH\": \"French\", \"GERMAN\": \"German\", \"HMONG\": \"Hmong\", \"MANDARIN\": \"Mandarin\", \"SPANISH\": \"Spanish\"}')"
+              "sourcedFrom": "customMemoryLookup(key,'{\"ARABIC\": \"Arabic\", \"ENGLISH\": \"English\", \"FRENCH\": \"French\", \"GERMAN\": \"German\", \"HMONG\": \"Hmong\", \"MANDARIN\": \"Mandarin\", \"SPANISH\": \"Spanish\"}')"
             },
             "system": {
               "sourcedFrom": "\"urn:ietf:bcp:47\""

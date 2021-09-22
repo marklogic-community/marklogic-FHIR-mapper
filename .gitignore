@@ -1,0 +1,6 @@
+fhir-mapping/.gradle
+fhir-mapping/.tmp
+local-module-timestamps.properties
+fhir-mapping/build
+hapi-server/.gradle
+hapi-server/build

@@ -109,13 +109,13 @@
           "sourcedFrom": "zip"
         },
         "type": {
-          "sourcedFrom": "memoryLookup(addresstype[1],'{\"MAILING\": \"postal\", \"PRIMARY\": \"physical\"}')"
+          "sourcedFrom": "customMemoryLookup(addresstype[1],'{\"MAILING\": \"postal\", \"PRIMARY\": \"physical\"}')"
         },
         "country": {
           "sourcedFrom": "\"USA\""
         },
         "use": {
-          "sourcedFrom": "memoryLookup(addresstype[1],'{\"LEGAL\": \"billing\", \"PRIMARY\": \"work\"}')"
+          "sourcedFrom": "customMemoryLookup(addresstype[1],'{\"LEGAL\": \"billing\", \"PRIMARY\": \"work\"}')"
         },
         "period": {
           "sourcedFrom": "..",

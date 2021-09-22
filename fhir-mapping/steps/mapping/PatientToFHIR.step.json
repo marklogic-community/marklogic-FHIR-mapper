@@ -43,7 +43,7 @@
                   "sourcedFrom": "\"http://terminology.hl7.org/CodeSystem/v2-0203\""
                 },
                 "code": {
-                  "sourcedFrom": "memoryLookup(.,'{\"SSN\":\"SS\",\"MEDICAID_ID\":\"MA\"}')"
+                  "sourcedFrom": "customMemoryLookup(.,'{\"SSN\":\"SS\",\"MEDICAID_ID\":\"MA\"}')"
                 }
               },
               "targetEntityType": "#/definitions/Coding"
@@ -52,7 +52,7 @@
           "targetEntityType": "#/definitions/CodeableConcept"
         },
         "system": {
-          "sourcedFrom": "memoryLookup(type,'{\"SSN\":\"http://hl7.org/fhir/sid/us-ssn\"}')"
+          "sourcedFrom": "customMemoryLookup(type,'{\"SSN\":\"http://hl7.org/fhir/sid/us-ssn\"}')"
         }
       },
       "targetEntityType": "#/definitions/Identifier"
@@ -94,7 +94,7 @@
           "sourcedFrom": ".",
           "properties": {
             "code": {
-              "sourcedFrom": "memoryLookup(.,'{\"Unknown\":\"UNK\"}')"
+              "sourcedFrom": "customMemoryLookup(.,'{\"Unknown\":\"UNK\"}')"
             },
             "system": {
               "sourcedFrom": "\"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\""
@@ -182,7 +182,7 @@
               "sourcedFrom": ".",
               "properties": {
                 "code": {
-                  "sourcedFrom": "memoryLookup(language,'{\"E\":\"en-US\"}')"
+                  "sourcedFrom": "customMemoryLookup(language,'{\"E\":\"en-US\"}')"
                 },
                 "system": {
                   "sourcedFrom": "\"http://hl7.org/fhir/ValueSet/languages\""
@@ -203,10 +203,10 @@
           "sourcedFrom": "value"
         },
         "system": {
-          "sourcedFrom": "memoryLookup(type,'{\"HOME_PHONE\":\"phone\"}')"
+          "sourcedFrom": "customMemoryLookup(type,'{\"HOME_PHONE\":\"phone\"}')"
         },
         "use": {
-          "sourcedFrom": "memoryLookup(type,'{\"HOME_PHONE\":\"home\"}')"
+          "sourcedFrom": "customMemoryLookup(type,'{\"HOME_PHONE\":\"home\"}')"
         }
       },
       "targetEntityType": "#/definitions/ContactPoint"
@@ -260,10 +260,10 @@
               "sourcedFrom": "value"
             },
             "system": {
-              "sourcedFrom": "memoryLookup(type,'{\"HOME_PHONE\":\"phone\"}')"
+              "sourcedFrom": "customMemoryLookup(type,'{\"HOME_PHONE\":\"phone\"}')"
             },
             "use": {
-              "sourcedFrom": "memoryLookup(type,'{\"HOME_PHONE\":\"home\"}')"
+              "sourcedFrom": "customMemoryLookup(type,'{\"HOME_PHONE\":\"home\"}')"
             }
           },
           "targetEntityType": "#/definitions/ContactPoint"
