@@ -22,7 +22,7 @@ if(indexResult && indexResult.length > 0) {
 
 
 const query = cts.andQuery([
-  cts.collectionQuery('provider-scdhhs-canonical'),
+  cts.collectionQuery('provider-dhhs-canonical'),
   cts.jsonPropertyValueQuery("providerType", "PERSON"),
   cts.jsonPropertyValueQuery('publicID', practitionerUUID)
 ]);
