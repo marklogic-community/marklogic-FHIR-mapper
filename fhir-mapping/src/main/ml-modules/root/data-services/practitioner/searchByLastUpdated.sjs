@@ -19,7 +19,7 @@ if (date) {
 
   // search for and filter your documents if needed
   const query = cts.andQuery([
-    cts.collectionQuery('provider-scdhhs-canonical'),
+    cts.collectionQuery('provider-dhhs-canonical'),
     cts.jsonPropertyRangeQuery("ingestTimestamp", ">=", xs.dateTime(date+"T00:00:00")),
     cts.jsonPropertyValueQuery("providerType","PERSON")
   ]) 

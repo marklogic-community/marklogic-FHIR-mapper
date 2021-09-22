@@ -20,7 +20,7 @@ const searchList = search ? JSON.parse(search) : [];
 
 // search for and filter your documents if needed
 const query = cts.andQuery([
-  cts.collectionQuery('provider-scdhhs-canonical'),
+  cts.collectionQuery('provider-dhhs-canonical'),
   cts.jsonPropertyValueQuery("providerType", "PERSON"),
   ...searchList.map(({ field, modifier, values }) => {
     return cts.jsonPropertyRangeQuery(fieldMap.get(field), egress.modifierPrefixMap.get(modifier), xs.dateTime(values[0]))
