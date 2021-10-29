@@ -1,9 +1,7 @@
 plugins {
    // Gradle Properties plugin
-    id 'net.saliman.properties' version '1.4.6'
 	id 'org.springframework.boot' version '2.4.5'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-	id 'com.marklogic.ml-development-tools' version '5.4.0'
 	id 'java'
 	id 'war'
 	id "io.freefair.war-overlay" version "6.0.0-m2"
@@ -11,7 +9,7 @@ plugins {
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
+//sourceCompatibility = '1.8'
 
 repositories {
 	//mavenCentral()
@@ -25,6 +23,8 @@ configurations.all {
 }
 
 dependencies {
+	implementation project('fhir-mapping')
+
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

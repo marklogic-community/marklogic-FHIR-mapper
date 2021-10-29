@@ -59,7 +59,7 @@ public class LocationResourceProvider implements IResourceProvider {
             List<SearchCriteria> searchCriteriaList = List.of(searchCriteria(Location.SP_RES_ID, theId.getIdPart()));
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-            JsonNode rootNode = MLSearch.on(thisClient).searchById(params, page.getOffset(), page.getCount());
+            ArrayNode rootNode = LocationSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
             retLocation = getMLLocation(rootNode);
         } catch (Exception ex) {
             throw new ResourceNotFoundException(ex.getMessage());
@@ -91,6 +91,7 @@ public class LocationResourceProvider implements IResourceProvider {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode params = objectMapper.valueToTree(searchTerms);
             JsonNode rootNode = MLSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+            ArrayNode rootNode = LocationSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
             locations = getMLLocations(rootNode);
         } catch (Exception ex) {
             throw new ResourceNotFoundException(ex.getMessage());

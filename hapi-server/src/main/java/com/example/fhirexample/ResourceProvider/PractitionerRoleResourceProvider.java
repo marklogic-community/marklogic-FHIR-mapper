@@ -27,7 +27,8 @@ import java.util.*;
 import static java.util.stream.Collectors.toList;
 
 import com.marklogic.client.DatabaseClient;
-import com.marklogic.practitioner.MLSearch;
+import com.marklogic.fhir.ds.PractitionerSearch;
+import com.marklogic.fhir.ds.LocationSearch;
 import com.marklogic.fhir.ds.PractitionerRoleSearch;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

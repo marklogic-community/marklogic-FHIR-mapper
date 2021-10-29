@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toList;
 
 import com.marklogic.client.DatabaseClient;
-import com.marklogic.patient.MLSearch;
+import com.marklogic.fhir.ds.PatientSearch;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marklogic.util.Pagination;
@@ -73,7 +73,7 @@ public class PatientResourceProvider implements IResourceProvider {
             List<SearchCriteria> searchCriteriaList = List.of(searchCriteria(Patient.SP_RES_ID, theId.getIdPart()));
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-            JsonNode rootNode = MLSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+            JsonNode rootNode = PatientSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
             patient = getMLPatient(rootNode);
         } catch (Exception ex) {
             throw new ResourceNotFoundException(ex.getMessage());
@@ -115,7 +115,7 @@ public class PatientResourceProvider implements IResourceProvider {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode params = objectMapper.valueToTree(searchTerms);
             System.out.println("PARAMS:" + params.toString());
-            JsonNode rootNode = MLSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+            JsonNode rootNode = PatientSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
             patients = getMLPatients(rootNode);
         } catch (Exception ex) {
             throw new ResourceNotFoundException(ex.getMessage());
