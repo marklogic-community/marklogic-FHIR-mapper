@@ -46,14 +46,14 @@ dependencies {
 	testRuntimeOnly group: "org.slf4j", name: "jcl-over-slf4j", version: "1.7.22"
 	testRuntimeOnly group: "org.slf4j", name: "slf4j-api", version: "1.7.22"
 
-	implementation group: 'ca.uhn.hapi.fhir', name: 'org.hl7.fhir.r5', version: '5.3.11'
-	implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-structures-r5', version: '5.3.3'
+	implementation group: 'ca.uhn.hapi.fhir', name: 'org.hl7.fhir.r4', version: '5.3.11'
+	implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-structures-r4', version: '5.3.3'
 	implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-jpaserver-base', version: '5.3.3'
 	implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-base', version: '5.3.3'
 	//implementation "org.springframework:spring-jdbc:5.3.6"
 	//implementation "com.h2database:h2:1.4.200"
 	
-	testRuntimeOnly group: 'ca.uhn.hapi.fhir', name: 'org.hl7.fhir.r5', version: '5.3.11'
+	testRuntimeOnly group: 'ca.uhn.hapi.fhir', name: 'org.hl7.fhir.r4', version: '5.3.11'
 
 	// test page overlay deps
 	compile group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-testpage-overlay', version: '5.3.3'

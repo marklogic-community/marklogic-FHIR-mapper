@@ -20,8 +20,8 @@ import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 
 import org.hl7.fhir.dstu2.model.IdType;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r5.model.HumanName;
-import org.hl7.fhir.r5.model.Patient;
+import org.hl7.fhir.r4.model.HumanName;
+import org.hl7.fhir.r4.model.Patient;
 
 import java.util.*;
 import java.util.stream.Stream;

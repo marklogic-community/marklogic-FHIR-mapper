@@ -10,13 +10,14 @@ import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hl7.fhir.dstu2.model.IdType;
+import org.hl7.fhir.r4.model.IdType;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r5.model.Location;
+import org.hl7.fhir.r4.model.Location;
 
 import java.util.*;
 
 import com.marklogic.client.DatabaseClient;
-import com.marklogic.location.MLSearch;
+import com.marklogic.fhir.ds.LocationSearch;
 import com.marklogic.util.Pagination;
 import com.marklogic.util.SearchCriteria;
 

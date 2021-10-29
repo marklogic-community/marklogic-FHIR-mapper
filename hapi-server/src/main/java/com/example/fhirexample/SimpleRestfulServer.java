@@ -43,7 +43,7 @@ public class SimpleRestfulServer extends RestfulServer{
             System.out.println("ML Client [" + client.getDatabase() + "]");
             System.out.println("ML HOST [" + mlHost + "]");
             //create a context for the appropriate version
-            FhirContext ctx = FhirContext.forR5();
+            FhirContext ctx = FhirContext.forR4();
             setFhirContext(ctx);
             IParser parser = ctx.newJsonParser();
             // Ask the context for a validator

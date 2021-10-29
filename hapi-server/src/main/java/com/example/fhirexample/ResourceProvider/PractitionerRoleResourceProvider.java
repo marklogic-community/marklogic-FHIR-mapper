@@ -18,10 +18,11 @@ import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import org.hl7.fhir.dstu2.model.IdType;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r5.model.HumanName;
-import org.hl7.fhir.r5.model.Practitioner;
-import org.hl7.fhir.r5.model.PractitionerRole;
-import org.hl7.fhir.r5.model.DomainResource;
+import org.hl7.fhir.r4.model.HumanName;
+import org.hl7.fhir.r4.model.Location;
+import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.PractitionerRole;
+import org.hl7.fhir.r4.model.DomainResource;
 
 import java.util.*;
 import static java.util.stream.Collectors.toList;
