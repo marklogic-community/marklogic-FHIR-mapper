@@ -3,7 +3,6 @@ package com.example.fhirexample.ResourceProvider;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.rest.annotation.IdParam;
 import ca.uhn.fhir.rest.annotation.Read;
-import ca.uhn.fhir.rest.annotation.RequiredParam;
 import ca.uhn.fhir.rest.annotation.OptionalParam;
 import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.annotation.Count;
@@ -11,8 +10,6 @@ import ca.uhn.fhir.rest.annotation.IncludeParam;
 import ca.uhn.fhir.rest.annotation.Offset;
 
 import ca.uhn.fhir.model.api.Include;
-import ca.uhn.fhir.rest.param.StringParam;
-import ca.uhn.fhir.rest.param.StringOrListParam;
 import ca.uhn.fhir.rest.param.StringAndListParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
@@ -23,9 +20,9 @@ import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.PractitionerRole;
 import org.hl7.fhir.r4.model.DomainResource;
+import org.hl7.fhir.r4.model.Reference;
 
 import java.util.*;
-import static java.util.stream.Collectors.toList;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.fhir.ds.PractitionerSearch;
@@ -33,6 +30,7 @@ import com.marklogic.fhir.ds.LocationSearch;
 import com.marklogic.fhir.ds.PractitionerRoleSearch;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.marklogic.util.SearchCriteria;
 import com.marklogic.util.Pagination;
 import static com.marklogic.util.SearchCriteria.searchCriteria;
@@ -56,6 +54,7 @@ public class PractitionerRoleResourceProvider implements IResourceProvider {
     public PractitionerRole read(@IdParam IdType id) {
         // get the id part to search on
         String idPart = id.getIdPart();
+    
 
         // perform the search
         JsonNode rootNode = PractitionerRoleSearch.on(thisClient).read(idPart);
@@ -71,7 +70,7 @@ public class PractitionerRoleResourceProvider implements IResourceProvider {
             @OptionalParam(name=PractitionerRole.SP_PRACTITIONER) StringAndListParam practitioner,
             @Offset Integer theOffset,
             @Count Integer theCount,
-            @IncludeParam(allow={"PractitionerRole:practitioner"}) Set<Include> theIncludes) {
+            @IncludeParam(allow={"PractitionerRole:practitioner", "PractitionerRole:location"}) Set<Include> theIncludes) {
 
         System.out.println("findPractitionerRolesByPractitioner");
         List<DomainResource> results = new ArrayList<>();
@@ -88,6 +87,10 @@ public class PractitionerRoleResourceProvider implements IResourceProvider {
             if (theIncludes.contains(new Include("PractitionerRole:practitioner"))) {
                 List<Practitioner> practitioners = getPractitionerInclude(practitionerRoles);    
                 results.addAll(practitioners);
+            }
+            if (theIncludes.contains(new Include("PractitionerRole:location"))) {
+                List<Location> locations = getLocationInclude(practitionerRoles);    
+                results.addAll(locations);
             }
         } catch (Exception ex) {
             throw new ResourceNotFoundException(ex.getMessage());
@@ -109,11 +112,32 @@ public class PractitionerRoleResourceProvider implements IResourceProvider {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode params = objectMapper.valueToTree(searchCriteriaList);
 
-        System.out.println(params);
-
-		JsonNode rootNode = MLSearch.on(thisClient).search(params, 1, 20);
+		JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, 1, 20);
 
         return getMLPractitioners(rootNode);
+    }
+
+    private List<Location> getLocationInclude(List<PractitionerRole> practitionerRoleResults) {
+
+        List<String> pids = new ArrayList<>();
+
+        for(PractitionerRole current : practitionerRoleResults) {
+            for(Reference currentLocation : current.getLocation()) {
+                String[] parts = currentLocation.getReference().split("/");
+                pids.add(parts[parts.length - 1]);
+            }
+        }
+
+        List<SearchCriteria> searchCriteriaList = List.of(searchCriteria(Practitioner.SP_RES_ID, pids));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode params = objectMapper.valueToTree(searchCriteriaList);
+
+        System.out.println(params);
+
+		ArrayNode rootNode = LocationSearch.on(thisClient).search(params, null, null);
+
+        return getMLLocations(rootNode);
     }
 
     private List<Practitioner>  getMLPractitioners(JsonNode rootNode) {
@@ -146,6 +170,18 @@ public class PractitionerRoleResourceProvider implements IResourceProvider {
             }
         }
         return practitioners;
+    }
+    
+
+    private List<Location> getMLLocations(ArrayNode rootNode) {
+        List<Location> locations = new ArrayList<Location>();
+
+        for(JsonNode docNode : rootNode) {
+            Location thisLocation = thisParser.parseResource(Location.class, docNode.toString());
+            locations.add(thisLocation);
+        }
+
+        return locations;
     }
 
     private List<PractitionerRole>  getMLPractitionerRoles(JsonNode rootNode) {
