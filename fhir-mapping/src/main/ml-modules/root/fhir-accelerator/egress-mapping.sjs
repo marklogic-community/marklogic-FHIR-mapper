@@ -27,8 +27,12 @@ function writePreMapToDB(content, mapping){
   var newDocument = premappingModule.transform(content)
   var collections = premappingModule.getCollections(newDocument)
   var uri = premappingModule.getURI(newDocument)
+  var newPerms = xdmp.documentGetPermissions(content.baseURI)
 
-  xdmp.documentInsert(uri, newDocument, {permissions : xdmp.defaultPermissions(), collections : collections})
+  xdmp.documentInsert(uri, newDocument, {
+    permissions : newPerms ? newPerms : xdmp.defaultPermissions(),
+    collections : collections,
+  })
 }
 
 function mapAndUnwrap(content, mapping) {

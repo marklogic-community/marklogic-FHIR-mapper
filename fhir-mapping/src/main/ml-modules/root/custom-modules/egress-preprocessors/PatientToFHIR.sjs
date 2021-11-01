@@ -14,9 +14,9 @@ function getURI(preMappedContent) {
   uriRoot = "/pretransformed/member/"
   uriExtension = ".json"
 
-  var providerId = fn.head(preMappedContent.xpath("document/envelope/headers/metadata/publicID"))
+  var memberId = fn.head(preMappedContent.xpath("document/envelope/instance/member/publicID"))
 
-  uri = uriRoot + providerId + uriExtension
+  uri = uriRoot + memberId + uriExtension
 
   return uri
 }
