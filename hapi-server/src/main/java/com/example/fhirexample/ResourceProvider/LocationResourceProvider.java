@@ -7,6 +7,8 @@ import ca.uhn.fhir.rest.param.DateParam;
 import ca.uhn.fhir.rest.param.StringAndListParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
+
+import com.example.fhirexample.utils.LocationRestultParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -50,7 +52,7 @@ public class LocationResourceProvider implements IResourceProvider {
      *     * read operation. Read operations should return a single resource
      *     * instance.
      *
-     * This method will support a query like this http://localhost:8080/Patient/1
+     * This method will support a query like this http://localhost:8080/Location/1
      */
     @Read()
     public Location read(@IdParam IdType theId) {
@@ -62,7 +64,7 @@ public class LocationResourceProvider implements IResourceProvider {
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
             ArrayNode rootNode = LocationSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-            retLocation = getMLLocation(rootNode);
+            retLocation = LocationRestultParser.parseSingleLocation(rootNode);
         } catch (Exception ex) {
             throw new ResourceNotFoundException(ex.getMessage());
         }
@@ -87,40 +89,20 @@ public class LocationResourceProvider implements IResourceProvider {
         searchTerms.addAll(searchCriteria(Location.SP_RES_ID, id));
         if(lastUpdated != null)
             searchTerms.add(searchCriteria(Constants.PARAM_LASTUPDATED, lastUpdated));
-        searchTerms.addAll(searchCriteria(Location.SP_NAME, name));
-        searchTerms.addAll(searchCriteria(Location.SP_ADDRESS_CITY, city));
-        searchTerms.addAll(searchCriteria(Location.SP_ADDRESS_STATE, state));
-        searchTerms.addAll(searchCriteria(Location.SP_ADDRESS_POSTALCODE, zip));
-        searchTerms.addAll(searchCriteria(Location.SP_ADDRESS, address));
+            searchTerms.addAll(searchCriteria(Location.SP_NAME, name));
+            searchTerms.addAll(searchCriteria(Location.SP_ADDRESS_CITY, city));
+            searchTerms.addAll(searchCriteria(Location.SP_ADDRESS_STATE, state));
+            searchTerms.addAll(searchCriteria(Location.SP_ADDRESS_POSTALCODE, zip));
+            searchTerms.addAll(searchCriteria(Location.SP_ADDRESS, address));
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode params = objectMapper.valueToTree(searchTerms);
-            System.out.println(params.toString());
+
             ArrayNode rootNode = LocationSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-            locations = getMLLocations(rootNode);
+            locations = LocationRestultParser.parseMultipleLocations(rootNode);
         } catch (Exception ex) {
             throw new ResourceNotFoundException(ex.getMessage());
         }
-        return locations;
-    }
-
-    private Location getMLLocation(ArrayNode rootNode) {
-        if(rootNode.size() > 1) {
-            throw new RuntimeException("Too many documents returned for a single read");
-        }
-
-        Location thisLocation = thisParser.parseResource(Location.class, rootNode.get(0).toString());
-        return thisLocation;
-    }
-
-    private List<Location> getMLLocations(ArrayNode rootNode) {
-        List<Location> locations = new ArrayList<Location>();
-
-        for(JsonNode docNode : rootNode) {
-            Location thisLocation = thisParser.parseResource(Location.class, docNode.toString());
-            locations.add(thisLocation);
-        }
-
         return locations;
     }
 }
