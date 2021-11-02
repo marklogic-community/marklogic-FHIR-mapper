@@ -20,6 +20,10 @@ public class LocationResultParser {
             throw new RuntimeException("Too many documents returned for a single read");
         }
 
+        if(rootNode.size() == 0) {
+            return null;
+        }
+
         Location thisLocation = parser.parseResource(Location.class, rootNode.get(0).toString());
         return thisLocation;
     }
