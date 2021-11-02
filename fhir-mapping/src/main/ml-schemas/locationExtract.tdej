@@ -7,6 +7,10 @@
                 "val": "/envelope/headers/metadata/publicID"
             },
             {
+                "name": "providerVersion",
+                "val": "/envelope/headers/metadata/hashValue"
+            },
+            {
                 "name": "index",
                 "val": "count(./preceding-sibling::providerLocations)+1"
             },
@@ -25,6 +29,13 @@
                         "name": "id",
                         "scalarType": "string",
                         "val": "$locationId",
+                        "nullable": false,
+                        "invalidValues": "ignore"
+                    },
+                    {
+                        "name": "version",
+                        "scalarType": "string",
+                        "val": "$providerVersion",
                         "nullable": false,
                         "invalidValues": "ignore"
                     },

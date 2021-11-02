@@ -16,6 +16,7 @@ const searchList = search ? JSON.parse(search) : [];
 
 const locationCol = op.col('location');
 const idCol = op.col('id');
+const versionCol = op.col('version');
 
 const cityCol = op.col('city');
 const stateCol = op.col('state');
@@ -37,6 +38,17 @@ for(var criteria of searchList) {
       
       for(var value of criteria.values) {
         valueCriteria.push(op.sql.like(idCol, value))
+      }
+      
+      qu.addFilterToConditionList(conditionList, valueCriteria, conditionList)
+      
+      break;
+    case "version":
+    case "_version":
+      var valueCriteria = []
+      
+      for(var value of criteria.values) {
+        valueCriteria.push(op.sql.like(versionCol, value))
       }
       
       qu.addFilterToConditionList(conditionList, valueCriteria, conditionList)
