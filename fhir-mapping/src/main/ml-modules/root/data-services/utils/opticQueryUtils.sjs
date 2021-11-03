@@ -1,13 +1,11 @@
-
-
 const beginningOfDay = xs.time('00:00:00')
 
 function applyStringParamModifier(modifier, value) {
-  if("exact" === criteria.modifier) {
+  if("exact" === modifier) {
     //do nothing to the value
-  } else if("contains" === criteria.modifier) {
+  } else if("contains" === modifier) {
     value = '%' + value + '%'
-  } else if("" === criteria.modifier) {
+  } else if("" === modifier) {
     value = value + '%'
   }
   
