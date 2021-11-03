@@ -28,7 +28,7 @@ import com.marklogic.client.DatabaseClient;
 import com.marklogic.fhir.ds.PractitionerSearch;
 import com.marklogic.fhir.ds.LocationSearch;
 import com.marklogic.fhir.ds.PractitionerRoleSearch;
-import com.example.fhirexample.utils.LocationRestultParser;
+import com.example.fhirexample.utils.LocationResultParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -138,7 +138,7 @@ public class PractitionerRoleResourceProvider implements IResourceProvider {
 
 		ArrayNode rootNode = LocationSearch.on(thisClient).search(params, null, null);
 
-        return LocationRestultParser.parseMultipleLocations(rootNode);
+        return LocationResultParser.parseMultipleLocations(rootNode);
     }
 
     private List<Practitioner>  getMLPractitioners(JsonNode rootNode) {

@@ -11,7 +11,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-public class LocationRestultParser {
+public class LocationResultParser {
 
     private static final IParser parser = FhirContext.forR4().newJsonParser();
 

@@ -8,7 +8,7 @@ import ca.uhn.fhir.rest.param.StringAndListParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 
-import com.example.fhirexample.utils.LocationRestultParser;
+import com.example.fhirexample.utils.LocationResultParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -64,7 +64,7 @@ public class LocationResourceProvider implements IResourceProvider {
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
             ArrayNode rootNode = LocationSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-            retLocation = LocationRestultParser.parseSingleLocation(rootNode);
+            retLocation = LocationResultParser.parseSingleLocation(rootNode);
         } catch (Exception ex) {
             throw new ResourceNotFoundException(ex.getMessage());
         }
@@ -99,7 +99,7 @@ public class LocationResourceProvider implements IResourceProvider {
             JsonNode params = objectMapper.valueToTree(searchTerms);
 
             ArrayNode rootNode = LocationSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-            locations = LocationRestultParser.parseMultipleLocations(rootNode);
+            locations = LocationResultParser.parseMultipleLocations(rootNode);
         } catch (Exception ex) {
             throw new ResourceNotFoundException(ex.getMessage());
         }
