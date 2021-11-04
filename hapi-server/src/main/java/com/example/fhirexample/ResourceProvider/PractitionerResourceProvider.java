@@ -19,16 +19,16 @@ import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import org.hl7.fhir.dstu2.model.IdType;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r5.model.HumanName;
-import org.hl7.fhir.r5.model.Practitioner;
-import org.hl7.fhir.r5.model.PractitionerRole;
-import org.hl7.fhir.r5.model.DomainResource;
+import org.hl7.fhir.r4.model.HumanName;
+import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.PractitionerRole;
+import org.hl7.fhir.r4.model.DomainResource;
 
 import java.util.*;
 import static java.util.stream.Collectors.toList;
 
 import com.marklogic.client.DatabaseClient;
-import com.marklogic.practitioner.MLSearch;
+import com.marklogic.fhir.ds.PractitionerSearch;
 import com.marklogic.fhir.ds.PractitionerRoleSearch;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -85,7 +85,7 @@ public class PractitionerResourceProvider implements IResourceProvider {
         Pagination page = new Pagination(theOffset, theCount);
         try {
             JsonNode rootNode;
-            rootNode = MLSearch.on(thisClient).search(null, page.getOffset(), page.getCount());
+            rootNode = PractitionerSearch.on(thisClient).search(null, page.getOffset(), page.getCount());
             List<Practitioner> practitioners = getMLPractitioners(rootNode);
 
             results.addAll(practitioners);
@@ -112,7 +112,7 @@ public class PractitionerResourceProvider implements IResourceProvider {
             List<SearchCriteria> searchCriteriaList = searchCriteria(Practitioner.SP_IDENTIFIER, theParam);
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-            JsonNode rootNode = MLSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+            JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
             List<Practitioner> practitioners = getMLPractitioners(rootNode);
 
             results.addAll(practitioners);
@@ -139,7 +139,7 @@ public class PractitionerResourceProvider implements IResourceProvider {
             List<SearchCriteria> searchCriteriaList = searchCriteria(Practitioner.SP_NAME, theParam);
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-            JsonNode rootNode = MLSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+            JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
             List<Practitioner> practitioners = getMLPractitioners(rootNode);
 
             results.addAll(practitioners);
@@ -170,7 +170,7 @@ public class PractitionerResourceProvider implements IResourceProvider {
             List<SearchCriteria> searchCriteriaList = List.of(searchCriteria(Practitioner.SP_RES_ID, theId.getIdPart()));
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-            JsonNode rootNode = MLSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+            JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
             retPractitioner = getMLPractitioner(rootNode);
         } catch (Exception ex) {
             throw new ResourceNotFoundException(ex.getMessage());
@@ -191,7 +191,7 @@ public class PractitionerResourceProvider implements IResourceProvider {
             List<SearchCriteria> searchCriteriaList = searchCriteria(Practitioner.SP_GIVEN, paramValues);
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-            JsonNode rootNode = MLSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+            JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
             List<Practitioner> practitioners = getMLPractitioners(rootNode);
 
             results.addAll(practitioners);
@@ -220,7 +220,7 @@ public class PractitionerResourceProvider implements IResourceProvider {
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
             System.out.println("PARAMS:" + params.toString());
-            JsonNode rootNode = MLSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+            JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
             List<Practitioner> practitioners = getMLPractitioners(rootNode);
 
             results.addAll(practitioners);
@@ -247,7 +247,7 @@ public class PractitionerResourceProvider implements IResourceProvider {
             List<SearchCriteria> searchCriteriaList = List.of(searchCriteria(Practitioner.SP_RES_ID, theParam));
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-            JsonNode rootNode = MLSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+            JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
             List<Practitioner> practitioners = getMLPractitioners(rootNode);
 
             results.addAll(practitioners);

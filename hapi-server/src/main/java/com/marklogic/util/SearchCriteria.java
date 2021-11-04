@@ -47,10 +47,15 @@ public class SearchCriteria {
         return new SearchCriteria(field, modifier, values);
     }
 
-    public static SearchCriteria searchCriteria(String field, DateParam dateRange) {
-        String modifier = dateModifierMap.get(dateRange.getPrefix().toString());
+    public static SearchCriteria searchCriteria(String field, DateParam date) {
+        String modifier;
+        if(date.getPrefix() == null) {
+            modifier = "=";
+        } else {
+            modifier = dateModifierMap.get(date.getPrefix().toString());
+        }
 
-        return new SearchCriteria(field, modifier, List.of(dateRange.getValueAsString()));
+        return new SearchCriteria(field, modifier, List.of(date.getValueAsString()));
     }
 
     public static List<SearchCriteria> searchCriteria(String field, DateRangeParam dateRange) {
@@ -131,11 +136,11 @@ public class SearchCriteria {
     // https://www.hl7.org/fhir/search.html#prefix
     private static Map<String, String> dateModifierMap = Map.ofEntries(
         // Date & Numeric
-        entry(ParamPrefixEnum.EQUAL.toString(), "eq"),
-        entry(ParamPrefixEnum.GREATERTHAN_OR_EQUALS.toString(), "ge"),
-        entry(ParamPrefixEnum.GREATERTHAN.toString(), "gt"),
-        entry(ParamPrefixEnum.LESSTHAN_OR_EQUALS.toString(), "le"),
-        entry(ParamPrefixEnum.LESSTHAN.toString(), "lt"),
+        entry(ParamPrefixEnum.EQUAL.toString(), "="),
+        entry(ParamPrefixEnum.GREATERTHAN_OR_EQUALS.toString(), ">="),
+        entry(ParamPrefixEnum.GREATERTHAN.toString(), ">"),
+        entry(ParamPrefixEnum.LESSTHAN_OR_EQUALS.toString(), "<="),
+        entry(ParamPrefixEnum.LESSTHAN.toString(), "<"),
         entry(ParamPrefixEnum.NOT_EQUAL.toString(), "ne"),
         entry(ParamPrefixEnum.APPROXIMATE.toString(), "ap"),
         // Period

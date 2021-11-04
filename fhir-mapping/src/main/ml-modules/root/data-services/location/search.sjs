@@ -1,73 +1,95 @@
 'use strict';
 const egress = require("/fhir-accelerator/egress-mapping.sjs")
+const op = require('/MarkLogic/optic');
+const qu = require('../utils/opticQueryUtils.sjs')
 
-// search egress practitioner
+// search for locations. null or empty means no filters
 var search;
 
-// starting position for paginated search results.
-// currently not implemented.
+// starting position for paginated search results. null means start at 0
 var start;
 
-// number of results per paginated search results.
-// currently not implemented.
+// number of results per paginated search results. null means return all results
 var limit;
 
-const fieldMap = new Map([
-  ['address-city', 'city'],
-  ['address-state', 'state'],
-  ['address-postalcode', 'zip'],
-  ['identifier', 'id'], // TODO: This isn't really supposed to be ID
-  ['id', 'id'],
-  ['_id', 'id'],
-  ['name', 'name'],
-  ['type', 'addresstype'],
-  ['address', ["name", "line1", "line2", "line3", "city", "county", "countyCode", "state","zip","addresstype"]]
-]);
-
 const searchList = search ? JSON.parse(search) : [];
-const options = ["case-insensitive", "wildcarded", "whitespace-insensitive", "punctuation-insensitive"];
 
-// search for and filter your documents if needed
-const query = cts.andQuery([
-  cts.collectionQuery('provider-dhhs-canonical'),
-  cts.jsonPropertyValueQuery("providerType", "PERSON"),
-  ...searchList.map(({ field, modifier, values }) => {
-    const searchValues = egress.searchValuesWithModifier(values, modifier)
-    return cts.jsonPropertyValueQuery(fieldMap.get(field), searchValues, options)
-  })
-]);
+const locationCol = op.col('location');
+const idCol = op.col('id');
 
-// do the search
-const searchResults = cts.search(query);
-// Apply paging logic
-const rawDocs = fn.subsequence(searchResults, start, limit)
-// Extract matching locations
-var locations = [];
-var loopCount = 1
-for (var rawDoc of rawDocs) {
-  for (const loc of rawDoc.xpath("//providerLocations")) {
-    if (cts.contains(loc, cts.andQuery([
-            ...searchList.map(({ field, modifier, values }) => {
-              const searchValues = egress.searchValuesWithModifier(values, modifier)
-              return cts.jsonPropertyValueQuery(fieldMap.get(field), searchValues, options)
-            })])
-      )) {
-        if (locations.length <= limit && loopCount <= limit) {
-          if (loopCount >= start) {
-            locations.push(loc);            
-          }
-          loopCount++;
-        } else {
-          break;
-        }
-    }
-  };
-}// standard transform on searchResults variable
-const result = egress.transformMultiple(locations, "ProviderToFHIRLocation");
+const cityCol = op.col('city');
+const stateCol = op.col('state');
+const zipCol = op.col('postalcode');
+const line1Col = op.col('line1');
+const line2Col = op.col('line2');
+const line3Col = op.col('line3');
 
-const results = {
-  "results": result
-};
+const lastUpdatedCol = op.col('lastupdated');
 
-// return the result
-results;
+var conditionList = []
+
+// cycle through each search parameter
+for(var criteria of searchList) {
+  switch(criteria.field) {
+    case "id":
+    case "_id":
+      var valueCriteria = []
+      
+      for(var value of criteria.values) {
+        valueCriteria.push(op.sql.like(idCol, value))
+      }
+      
+      qu.addFilterToConditionList(conditionList, valueCriteria, conditionList)
+      
+      break;
+    case "address-city":
+      qu.convertStringParameterToQuery([cityCol], criteria, conditionList)
+      break;
+    case "address-state":
+      qu.convertStringParameterToQuery([stateCol], criteria, conditionList)
+      break;
+    case "address-postalcode":
+      qu.convertStringParameterToQuery([zipCol], criteria, conditionList)
+      break;
+    case "address":
+    case "name":
+      qu.convertStringParameterToQuery([cityCol, stateCol, zipCol, line1Col, line2Col, line3Col], criteria, conditionList)
+      break;
+    case "_lastUpdated":
+      qu.convertDateParameterToDateTimeQuery([lastUpdatedCol], criteria, conditionList)
+  }
+}
+
+const locationdocid = op.fragmentIdCol('locationdocid');
+
+var queryPlan = op.fromView('FHIR', 'Location', null, locationdocid)
+
+if(conditionList.length > 1) {
+  queryPlan = queryPlan.where(op.and(...conditionList))
+} else if (conditionList.length === 1) {
+  queryPlan = queryPlan.where(conditionList[0])
+}
+
+if(start > 0) {
+  queryPlan = queryPlan.offset(start-1)
+}
+
+if(limit > 0) {
+  queryPlan = queryPlan.limit(limit)
+}
+
+queryPlan = queryPlan.joinDoc(op.col('doc'), locationdocid)
+
+queryPlan = queryPlan.select(['id', 'index', 'doc'], "")
+
+let queryResults = queryPlan.result()
+
+let rawResults = []
+
+for(var current of queryResults) {
+   rawResults.push(current.doc.xpath('/envelope/instance/provider/providerLocations').toArray()[current.index-1])
+}
+
+let result = egress.transformMultiple(rawResults, "ProviderToFHIRLocation");
+
+result

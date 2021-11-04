@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import org.hl7.fhir.dstu2.model.IdType;
-import org.hl7.fhir.r5.model.PractitionerRole;
+import org.hl7.fhir.r4.model.PractitionerRole;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
@@ -32,7 +32,7 @@ class PractitionerRoleResourceProviderTest {
     @BeforeAll
     static void setup() {
         client = DatabaseClientFactory.newClient(host, port, new DatabaseClientFactory.DigestAuthContext(userName, password));
-        FhirContext ctx = FhirContext.forR5();
+        FhirContext ctx = FhirContext.forR4();
         parser = ctx.newJsonParser();
 
         provider = new PractitionerRoleResourceProvider(client, parser);
