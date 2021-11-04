@@ -23,8 +23,22 @@ module.exports = {
   getAbsolutePath(path) {
     return [basePath, path].join('/').replace(/\/\//g, '/');
   },
-  findDocumentsAlongPath(path, recursive = false, fromDatabaseID) {
-    return xdmp.invokeFunction(() => xdmp.directory(path, recursive ? 'infinity' : '1'), { database: fromDatabaseID });
+  findDocumentsAlongPath(path, recursive = false, database) {
+    return xdmp.invokeFunction(() => xdmp.directory(path, recursive ? 'infinity' : '1'), { database });
+  },
+
+  insertOriginalDocumentCollections(documents, database) {
+    xdmp.invokeFunction(
+      () => { documents.forEach(d => { d.collections = xdmp.documentGetCollections(d.baseURI); }); },
+      { database },
+    );
+  },
+
+  insertOriginalDocumentPermissions(documents, database) {
+    xdmp.invokeFunction(
+      () => { documents.forEach(d => { d.permissions = xdmp.documentGetPermissions(d.baseURI); }); },
+      { database },
+    );
   },
 
   attempt(cb) {
@@ -38,25 +52,34 @@ module.exports = {
   loadTestDocuments(opts) {
     checkRequiredPropertiesExistInOptions('loadTestDocuments', opts, 'path');
 
-    const { baseUri, collections, destinationDb, path, permissions, recursive, sourceDb } = {
-      baseUri: opts.path,
-      destinationDb: xdmp.database(),
-      sourceDb: xdmp.modulesDatabase(),
-      ...opts,
-    };
+    const options = { baseUri: opts.path, destinationDb: xdmp.database(), sourceDb: xdmp.modulesDatabase(), ...opts };
+    const { baseUri, collections, destinationDb, path, permissions, recursive, sourceDb } = options;
 
     const fullPath = this.getAbsolutePath(path);
     this.logger.info(`Inserting all documents in directory "${fullPath}" from database "${xdmp.databaseName(sourceDb)}" into database "${xdmp.databaseName(destinationDb)}"`);
 
-    const documents = this.findDocumentsAlongPath(fullPath, recursive, sourceDb);
-    this.logger.debug(`Retrieved ${fn.count(documents)} documents in source database to insert`);
+    const documents = this.findDocumentsAlongPath(fullPath, recursive, sourceDb).toArray().map(doc => ({
+      baseURI: doc.baseURI,
+      collections,
+      doc,
+      permissions,
+    }));
+    this.logger.debug(`Retrieved ${documents.length} documents in source database to insert`);
+
+    if (!collections) {
+      this.insertOriginalDocumentCollections(documents, sourceDb);
+    }
+
+    if (!permissions) {
+      this.insertOriginalDocumentPermissions(documents, sourceDb);
+    }
 
     xdmp.invokeFunction(
       () => {
         try {
           this.logger.debug('Inserting documents to destination database');
           for (const d of documents) {
-            xdmp.documentInsert(d.baseURI.replace(fullPath, baseUri), d, permissions, collections);
+            xdmp.documentInsert(d.baseURI.replace(fullPath, baseUri), d.doc, d.permissions, d.collections);
           }
           this.logger.debug('Finished inserting documents to destination database');
         } catch (e) {
@@ -70,12 +93,8 @@ module.exports = {
   unloadTestDocuments(opts) {
     checkRequiredPropertiesExistInOptions('unloadTestDocuments', opts, 'path');
 
-    const { baseUri, path, destinationDb, recursive, sourceDb } = {
-      baseUri: opts.path,
-      destinationDb: xdmp.database(),
-      sourceDb: xdmp.modulesDatabase(),
-      ...opts,
-    };
+    const options = { baseUri: opts.path, destinationDb: xdmp.database(), sourceDb: xdmp.modulesDatabase(), ...opts };
+    const { baseUri, path, destinationDb, recursive, sourceDb } = options;
 
     const fullPath = this.getAbsolutePath(path);
     this.logger.info(`Removing all documents from database "${xdmp.databaseName(destinationDb)}" which have a matching document in directory "${fullPath}" in database "${xdmp.databaseName(sourceDb)}"`);
@@ -86,9 +105,10 @@ module.exports = {
     xdmp.invokeFunction(
       () => {
         try {
+          declareUpdate();
           this.logger.debug('Removing documents from destination database');
           for (const d of documents) {
-            xdmp.documentInsert(d.baseURI.replace(fullPath, baseUri), { ifNotExists: 'allow' });
+            xdmp.documentDelete(d.baseURI.replace(fullPath, baseUri), { ifNotExists: 'allow' });
           }
           this.logger.debug('Finished removing documents from destination database');
         } catch (e) {

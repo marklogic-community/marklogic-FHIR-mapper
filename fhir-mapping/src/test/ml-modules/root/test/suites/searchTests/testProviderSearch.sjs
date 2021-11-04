@@ -15,14 +15,17 @@ const limit = 4;
 
 const { results } = fn.head(xdmp.invoke('/data-services/practitioner/search.sjs', { search, start, limit }));
 
-test.assertTrue(Array.isArray(results), `Expected results to be an array, got ${typeof results}`);
-test.assertEqual(1, results.length, `Expected 1 results, got ${results.length}`);
-results.forEach(result => {
-  const names = result.name;
+const assertions = [
+  test.assertEqual(1, results.length, `Expected 1 result, got ${results.length}`),
+  ...results.map(result => {
+    const names = result.name;
 
-  test.assertTrue(names.some(name => (
-    name.family.includes(value) ||
-    name.given.some(givenName => givenName.includes(value)) ||
-    name.prefix.includes(value)
-  )));
-});
+    test.assertTrue(names.some(name => (
+      name.family.includes(value) ||
+      name.given.some(givenName => givenName.includes(value)) ||
+      name.prefix.includes(value)
+    )));
+  }),
+];
+
+assertions;
