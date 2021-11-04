@@ -5,7 +5,7 @@ function applyStringParamModifier(modifier, value) {
     //do nothing to the value
   } else if("contains" === modifier) {
     value = '%' + value + '%'
-  } else if("" === modifier) {
+  } else if(modifier === null || "" === modifier) {
     value = value + '%'
   }
   
