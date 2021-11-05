@@ -161,20 +161,22 @@ public class PractitionerResourceProvider implements IResourceProvider {
      *
      * This method will support a query like this http://localhost:8080/Patient/1
      */
-    @Read()
+    @Read(version=true)
     public Practitioner read(@IdParam IdType theId) {
-        Practitioner retPractitioner = new Practitioner();
         Pagination page = new Pagination(null, null);
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            List<SearchCriteria> searchCriteriaList = List.of(searchCriteria(Practitioner.SP_RES_ID, theId.getIdPart()));
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<SearchCriteria> searchCriteriaList = new ArrayList<SearchCriteria>();
 
-            JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-            JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-            retPractitioner = getMLPractitioner(rootNode);
-        } catch (Exception ex) {
-            throw new ResourceNotFoundException(ex.getMessage());
+        searchCriteriaList.addAll(List.of(searchCriteria(Practitioner.SP_RES_ID, theId.getIdPart())));
+        if(theId.hasVersionIdPart()) {
+            searchCriteriaList.addAll(List.of(searchCriteria("_version", theId.getVersionIdPart())));
         }
+
+        JsonNode params = objectMapper.valueToTree(searchCriteriaList);
+        JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+        Practitioner retPractitioner = getMLPractitioner(rootNode);
+
         return retPractitioner;
     }
 
