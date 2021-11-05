@@ -69,7 +69,7 @@ public class LocationResourceProvider implements IResourceProvider {
 
         JsonNode params = objectMapper.valueToTree(searchCriteriaList);
         ArrayNode rootNode = LocationSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-        retLocation = LocationRestultParser.parseSingleLocation(rootNode);
+        retLocation = LocationResultParser.parseSingleLocation(rootNode);
 
         return retLocation;
     }
