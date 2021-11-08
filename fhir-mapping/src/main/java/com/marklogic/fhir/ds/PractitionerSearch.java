@@ -61,13 +61,13 @@ public interface PractitionerSearch {
             }
 
             @Override
-            public com.fasterxml.jackson.databind.JsonNode search(com.fasterxml.jackson.databind.JsonNode search, Integer start, Integer limit) {
+            public com.fasterxml.jackson.databind.node.ArrayNode search(com.fasterxml.jackson.databind.JsonNode search, Integer start, Integer limit) {
                 return search(
                     this.req_search.on(this.dbClient), search, start, limit
                     );
             }
-            private com.fasterxml.jackson.databind.JsonNode search(BaseProxy.DBFunctionRequest request, com.fasterxml.jackson.databind.JsonNode search, Integer start, Integer limit) {
-              return BaseProxy.JsonDocumentType.toJsonNode(
+            private com.fasterxml.jackson.databind.node.ArrayNode search(BaseProxy.DBFunctionRequest request, com.fasterxml.jackson.databind.JsonNode search, Integer start, Integer limit) {
+              return BaseProxy.ArrayType.toArrayNode(
                 request
                       .withParams(
                           BaseProxy.documentParam("search", true, BaseProxy.JsonDocumentType.fromJsonNode(search)),
@@ -78,13 +78,13 @@ public interface PractitionerSearch {
             }
 
             @Override
-            public com.fasterxml.jackson.databind.JsonNode searchByLastUpdated(String date, Integer start, Integer limit) {
+            public com.fasterxml.jackson.databind.node.ArrayNode searchByLastUpdated(String date, Integer start, Integer limit) {
                 return searchByLastUpdated(
                     this.req_searchByLastUpdated.on(this.dbClient), date, start, limit
                     );
             }
-            private com.fasterxml.jackson.databind.JsonNode searchByLastUpdated(BaseProxy.DBFunctionRequest request, String date, Integer start, Integer limit) {
-              return BaseProxy.JsonDocumentType.toJsonNode(
+            private com.fasterxml.jackson.databind.node.ArrayNode searchByLastUpdated(BaseProxy.DBFunctionRequest request, String date, Integer start, Integer limit) {
+              return BaseProxy.ArrayType.toArrayNode(
                 request
                       .withParams(
                           BaseProxy.atomicParam("date", false, BaseProxy.StringType.fromString(date)),
@@ -106,7 +106,7 @@ public interface PractitionerSearch {
    * @param limit	Limit results to the given number. Default is 20.
    * @return	
    */
-    com.fasterxml.jackson.databind.JsonNode search(com.fasterxml.jackson.databind.JsonNode search, Integer start, Integer limit);
+    com.fasterxml.jackson.databind.node.ArrayNode search(com.fasterxml.jackson.databind.JsonNode search, Integer start, Integer limit);
 
   /**
    * Invokes the searchByLastUpdated operation on the database server
@@ -116,6 +116,6 @@ public interface PractitionerSearch {
    * @param limit	Limit results to the given number. Default is 20.
    * @return	
    */
-    com.fasterxml.jackson.databind.JsonNode searchByLastUpdated(String date, Integer start, Integer limit);
+    com.fasterxml.jackson.databind.node.ArrayNode searchByLastUpdated(String date, Integer start, Integer limit);
 
 }

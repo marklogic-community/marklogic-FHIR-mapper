@@ -81,9 +81,5 @@ const rawDocs = fn.subsequence(searchResults, start, limit)
 // standard transform on searchResults variable
 const result = egress.transformMultiple(rawDocs, "PractitionerToFHIR");
 
-const results = {
-  "results": result
-};
-
 // return the result
-results;
+result;

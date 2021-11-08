@@ -29,8 +29,10 @@ import static java.util.stream.Collectors.toList;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.fhir.ds.PractitionerSearch;
+import com.example.fhirexample.utils.PractitionerResultParser;
 import com.marklogic.fhir.ds.PractitionerRoleSearch;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marklogic.util.SearchCriteria;
 import com.marklogic.util.Pagination;
@@ -84,9 +86,8 @@ public class PractitionerResourceProvider implements IResourceProvider {
         List<DomainResource> results = new ArrayList<>();
         Pagination page = new Pagination(theOffset, theCount);
         try {
-            JsonNode rootNode;
-            rootNode = PractitionerSearch.on(thisClient).search(null, page.getOffset(), page.getCount());
-            List<Practitioner> practitioners = getMLPractitioners(rootNode);
+            ArrayNode rootNode = PractitionerSearch.on(thisClient).search(null, page.getOffset(), page.getCount());
+            List<Practitioner> practitioners = PractitionerResultParser.parseMultiplePractitioners(rootNode);
 
             results.addAll(practitioners);
             if (theReverseIncludes.contains(new Include("PractitionerRole:practitioner"))) {
@@ -112,8 +113,8 @@ public class PractitionerResourceProvider implements IResourceProvider {
             List<SearchCriteria> searchCriteriaList = searchCriteria(Practitioner.SP_IDENTIFIER, theParam);
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-            JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-            List<Practitioner> practitioners = getMLPractitioners(rootNode);
+            ArrayNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+            List<Practitioner> practitioners = PractitionerResultParser.parseMultiplePractitioners(rootNode);
 
             results.addAll(practitioners);
             if (theReverseIncludes.contains(new Include("PractitionerRole:practitioner"))) {
@@ -139,8 +140,8 @@ public class PractitionerResourceProvider implements IResourceProvider {
             List<SearchCriteria> searchCriteriaList = searchCriteria(Practitioner.SP_NAME, theParam);
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-            JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-            List<Practitioner> practitioners = getMLPractitioners(rootNode);
+            ArrayNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+            List<Practitioner> practitioners = PractitionerResultParser.parseMultiplePractitioners(rootNode);
 
             results.addAll(practitioners);
             if (theReverseIncludes.contains(new Include("PractitionerRole:practitioner"))) {
@@ -174,8 +175,8 @@ public class PractitionerResourceProvider implements IResourceProvider {
         }
 
         JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-        JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-        Practitioner retPractitioner = getMLPractitioner(rootNode);
+        ArrayNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+        Practitioner retPractitioner = PractitionerResultParser.parseSinglePractitioner(rootNode);
 
         return retPractitioner;
     }
@@ -193,8 +194,8 @@ public class PractitionerResourceProvider implements IResourceProvider {
             List<SearchCriteria> searchCriteriaList = searchCriteria(Practitioner.SP_GIVEN, paramValues);
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-            JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-            List<Practitioner> practitioners = getMLPractitioners(rootNode);
+            ArrayNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+            List<Practitioner> practitioners = PractitionerResultParser.parseMultiplePractitioners(rootNode);
 
             results.addAll(practitioners);
             if (theReverseIncludes.contains(new Include("PractitionerRole:practitioner"))) {
@@ -222,8 +223,8 @@ public class PractitionerResourceProvider implements IResourceProvider {
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
             System.out.println("PARAMS:" + params.toString());
-            JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-            List<Practitioner> practitioners = getMLPractitioners(rootNode);
+            ArrayNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+            List<Practitioner> practitioners = PractitionerResultParser.parseMultiplePractitioners(rootNode);
 
             results.addAll(practitioners);
             if (theReverseIncludes.contains(new Include("PractitionerRole:practitioner"))) {
@@ -249,8 +250,8 @@ public class PractitionerResourceProvider implements IResourceProvider {
             List<SearchCriteria> searchCriteriaList = List.of(searchCriteria(Practitioner.SP_RES_ID, theParam));
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-            JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-            List<Practitioner> practitioners = getMLPractitioners(rootNode);
+            ArrayNode rootNode = PractitionerSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+            List<Practitioner> practitioners = PractitionerResultParser.parseMultiplePractitioners(rootNode);
 
             results.addAll(practitioners);
             if (theReverseIncludes.contains(new Include("PractitionerRole:practitioner"))) {
@@ -282,69 +283,7 @@ public class PractitionerResourceProvider implements IResourceProvider {
 
         return getMLPractitionerRoles(rootNode);
     }
-
-    private Practitioner getMLPractitioner(JsonNode rootNode) {
-        Practitioner thisPractitioner = null;
-        if (rootNode != null) {
-            Iterator<Map.Entry<String, JsonNode>> fieldsIterator = rootNode.fields();
-            JsonNode docNode = null;
-            while (fieldsIterator.hasNext()) {
-                Map.Entry<String,JsonNode> field = fieldsIterator.next();
-                //docNode = field.getValue().get(0);
-                System.out.println("docSize:" + field.getValue().size());
-                for (int i=0; i < field.getValue().size(); i++) {
-                    docNode = field.getValue().get(i);
-                    if (docNode != null && docNode.isContainerNode()) {
-                        // Parse it
-                        thisPractitioner = thisParser.parseResource(Practitioner.class, docNode.toString());
-                    }
-                    if (thisPractitioner != null) {
-                        System.out.println(thisPractitioner.getId());
-                        List<HumanName> hnList = thisPractitioner.getName();
-                        Iterator<HumanName> it = hnList.iterator();
-                        while(it.hasNext()) {
-                            HumanName obj = (HumanName)it.next();
-                            System.out.println(obj.getGiven());
-                        }
-                    }
-                }
-            }
-        }
-        return thisPractitioner;
-    }
-
-    private List<Practitioner>  getMLPractitioners(JsonNode rootNode) {
-        List<Practitioner> practitioners = new ArrayList<>();
-        Practitioner thisPractitioner = null;
-        if (rootNode != null) {
-            Iterator<Map.Entry<String, JsonNode>> fieldsIterator = rootNode.fields();
-            JsonNode docNode = null;
-            while (fieldsIterator.hasNext()) {
-                Map.Entry<String, JsonNode> field = fieldsIterator.next();
-                //docNode = field.getValue().get(0);
-                System.out.println("docSize:" + field.getValue().size());
-                for (int i = 0; i < field.getValue().size(); i++) {
-                    docNode = field.getValue().get(i);
-                    if (docNode != null && docNode.isContainerNode()) {
-                        // Parse it
-                        thisPractitioner = thisParser.parseResource(Practitioner.class, docNode.toString());
-                        practitioners.add(thisPractitioner);
-                    }
-                    if (!practitioners.isEmpty()) {
-                        System.out.println(thisPractitioner.getId());
-                        List<HumanName> hnList = thisPractitioner.getName();
-                        Iterator<HumanName> it = hnList.iterator();
-                        while (it.hasNext()) {
-                            HumanName obj = (HumanName) it.next();
-                            System.out.println(obj.getGiven());
-                        }
-                    }
-                }
-            }
-        }
-        return practitioners;
-    }
-
+    
     private List<PractitionerRole>  getMLPractitionerRoles(JsonNode rootNode) {
         List<PractitionerRole> practitionerRoles = new ArrayList<>();
         if (rootNode != null) {
