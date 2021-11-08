@@ -153,7 +153,7 @@ class Logger {
       const showSign = flags && flags.includes('+');
       const spaceInPlaceOfSign = !showSign && flags && flags.includes(' ');
       const forceSymbols = flags && flags.includes('#');
-      const padding = flags && flags.includes('0') ? '0' : ' ';
+      const paddingChar = flags && flags.includes('0') ? '0' : ' ';
 
       const forceSignSymbol = showSign ? '+' : spaceInPlaceOfSign ? ' ' : '';
 
@@ -166,9 +166,11 @@ class Logger {
 
       const diff = minWidth - formatted.length;
       if (diff > 0) {
+        const padding = paddingChar.repat(diff);
+
         return leftAlign
-          ? formatted + padding.repeat(diff)
-          : padding.repeat(diff) + formatted;
+          ? formatted + padding
+          : padding + formatted;
       }
 
       return formatted;

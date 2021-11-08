@@ -29,8 +29,7 @@ const resultsSeq = xdmp.invoke("/data-services/location/search.sjs", { search, s
 // returns:  Sequence( { results: [ {<firstloc>}, {<secondloc>},...]} )
 
 // pull out the locations array from structure above
-const resultsObj = fn.head(resultsSeq); // xdmp.invoke always returns a Sequence object, wrapping the  single item returned by the search service
-const results = resultsObj.results;     // the wrapped item is an object with a single results: property holding the array of locations
+const results = fn.head(resultsSeq); // xdmp.invoke always returns a Sequence object, wrapping the  single item returned by the search service
 
 // --- test the returned values ---
 const assertions = [
