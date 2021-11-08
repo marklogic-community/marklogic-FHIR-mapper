@@ -5,15 +5,10 @@ const utils = require('../testUtils.sjs');
 
 const egressMapping = require('/fhir-accelerator/egress-mapping.sjs');
 
-function flatMap(arr, cb) {
-  // NOTE: Flatten the array using Array.prototype.reduce (Array.prototype.flat is not supported yet)
-  return arr.map(cb).reduce((acc, res) => acc.concat(res), []);
-}
-
 function testMemberEgress(members) {
   const result = egressMapping.transformMultiple(members, 'PatientToFHIR');
 
-  return flatMap(result, (entry, idx) => {
+  return utils.flatMap(result, (entry, idx) => {
     const envelope = members[idx].toObject().envelope;
     const header = envelope.headers;
     const member = envelope.instance.member;
@@ -67,7 +62,7 @@ function getPractitionerAddressUse(types) {
 function testPractitionerEgress(providers) {
   const result = egressMapping.transformMultiple(providers, 'PractitionerToFHIR');
 
-  return flatMap(result, (entry, idx) => {
+  return utils.flatMap(result, (entry, idx) => {
     const envelope = providers[idx].toObject().envelope;
     const header = envelope.headers.metadata;
     const provider = envelope.instance.provider;
@@ -111,24 +106,39 @@ function testPractitionerEgress(providers) {
 function testPractitionerLocationEgress(providers) {
   const result = egressMapping.transformMultiple(providers, 'ProviderToFHIRLocation');
 
-  utils.logger.info(result[0]);
-
-  return flatMap(result, (entry, idx) => {
+  return utils.flatMap(result, (entry, idx) => {
     const envelope = providers[idx].toObject().envelope;
     const header = envelope.headers.metadata;
     const provider = envelope.instance.provider;
 
+    // TODO: Add additional assertions when more data present in transformed entries
     return [
-      test.assertEqual(1, 1),
+      test.assertEqual(`${header.publicID}-providerLocations-1`, entry.id),
+      test.assertEqual('Location', entry.resourceType),
     ];
   });
 }
 
 function testPractitionerRoleEgress(providers) {
-  // TODO: Implement a non-trivial test for egress
-  return [
-    test.assertTrue(fn.count(providers) >= 1),
-  ];
+  const result = egressMapping.transformMultiple(providers, 'ProviderToUSCorePractitionerRole');
+
+  utils.logger.info(result[0]);
+
+  return utils.flatMap(result, (entry, idx) => {
+    const envelope = providers[idx].toObject().envelope;
+    const header = envelope.headers.metadata;
+    const provider = envelope.instance.provider;
+
+    return [
+      test.assertEqual(`${header.publicID}-PractitionerRole-1`, entry.id),
+      test.assertEqual(`Location/${header.publicID}-providerLocations-3`, entry.location[0].reference),
+      test.assertEqual('Location', entry.location[0].type),
+      test.assertEqual(`Practitioner/${header.publicID}`, entry.practitioner.reference),
+      test.assertEqual('Practitioner', entry.practitioner.type),
+      test.assertEqual('Organization', entry.organization.type),
+      test.assertEqual('PractitionerRole', entry.resourceType),
+    ];
+  });
 }
 
 const members = xdmp.directory('/member/').toArray();

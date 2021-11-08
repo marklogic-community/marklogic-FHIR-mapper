@@ -48,6 +48,10 @@ module.exports = {
       this.logger.error('%s:\n%s', e.message, e.stack);
     }
   },
+  flatMap(arr, cb) {
+    // NOTE: Flatten the array using Array.prototype.reduce (Array.prototype.flat is not supported yet)
+    return arr.map(cb).reduce((acc, res) => acc.concat(res), []);
+  },
 
   loadTestDocuments(opts) {
     checkRequiredPropertiesExistInOptions('loadTestDocuments', opts, 'path');
