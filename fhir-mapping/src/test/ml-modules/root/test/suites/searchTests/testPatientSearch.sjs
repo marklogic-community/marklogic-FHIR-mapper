@@ -12,7 +12,7 @@
 // Note: this library is part of the ml-unit-test bundle, which is included via a build.gradle dependency
 const test = require('/test/test-helper.xqy');
 
-const zip = '81073';
+const zip = '81073-1234';
   
 // define the three search service inputs
 const search = xdmp.quote([{ // convert the JSON object search description into a JSON string
@@ -34,7 +34,7 @@ const results = resultsObj.results;     // the wrapped item is an object with a 
 
 // --- test the returned values ---
 const assertions = [
-  test.assertEqual(3, results.length, "Should have 3 patients with this postalCode. Got: " + results.length),
+  test.assertEqual(5, results.length, "Should have 5 patients with this postalCode. Got: " + results.length),
   ...results.map( r => {
     const addresses = r.address;
     const zips = addresses.map(a => a.postalCode);
