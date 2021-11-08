@@ -11,11 +11,11 @@ import com.marklogic.client.io.marker.JSONWriteHandle;
 import com.marklogic.client.impl.BaseProxy;
 
 /**
- * Searches practitionerRole based on various attributes
+ * Searches patient based on various attributes
  */
-public interface PractitionerRoleSearch {
+public interface PatientSearch {
     /**
-     * Creates a PractitionerRoleSearch object for executing operations on the database server.
+     * Creates a PatientSearch object for executing operations on the database server.
      *
      * The DatabaseClientFactory class can create the DatabaseClient parameter. A single
      * client object can be used for any number of requests and in multiple threads.
@@ -23,11 +23,11 @@ public interface PractitionerRoleSearch {
      * @param db	provides a client for communicating with the database server
      * @return	an object for executing database operations
      */
-    static PractitionerRoleSearch on(DatabaseClient db) {
+    static PatientSearch on(DatabaseClient db) {
       return on(db, null);
     }
     /**
-     * Creates a PractitionerRoleSearch object for executing operations on the database server.
+     * Creates a PatientSearch object for executing operations on the database server.
      *
      * The DatabaseClientFactory class can create the DatabaseClient parameter. A single
      * client object can be used for any number of requests and in multiple threads.
@@ -42,37 +42,19 @@ public interface PractitionerRoleSearch {
      * @param serviceDeclaration	substitutes a custom implementation of the service
      * @return	an object for executing database operations
      */
-    static PractitionerRoleSearch on(DatabaseClient db, JSONWriteHandle serviceDeclaration) {
-        final class PractitionerRoleSearchImpl implements PractitionerRoleSearch {
+    static PatientSearch on(DatabaseClient db, JSONWriteHandle serviceDeclaration) {
+        final class PatientSearchImpl implements PatientSearch {
             private DatabaseClient dbClient;
             private BaseProxy baseProxy;
 
-            private BaseProxy.DBFunctionRequest req_read;
             private BaseProxy.DBFunctionRequest req_search;
 
-            private PractitionerRoleSearchImpl(DatabaseClient dbClient, JSONWriteHandle servDecl) {
+            private PatientSearchImpl(DatabaseClient dbClient, JSONWriteHandle servDecl) {
                 this.dbClient  = dbClient;
-                this.baseProxy = new BaseProxy("/data-services/practitionerRole/", servDecl);
+                this.baseProxy = new BaseProxy("/data-services/patient/", servDecl);
 
-                this.req_read = this.baseProxy.request(
-                    "read.sjs", BaseProxy.ParameterValuesKind.SINGLE_ATOMIC);
                 this.req_search = this.baseProxy.request(
                     "search.sjs", BaseProxy.ParameterValuesKind.MULTIPLE_MIXED);
-            }
-
-            @Override
-            public com.fasterxml.jackson.databind.JsonNode read(String id) {
-                return read(
-                    this.req_read.on(this.dbClient), id
-                    );
-            }
-            private com.fasterxml.jackson.databind.JsonNode read(BaseProxy.DBFunctionRequest request, String id) {
-              return BaseProxy.JsonDocumentType.toJsonNode(
-                request
-                      .withParams(
-                          BaseProxy.atomicParam("id", false, BaseProxy.StringType.fromString(id))
-                          ).responseSingle(false, Format.JSON)
-                );
             }
 
             @Override
@@ -93,16 +75,8 @@ public interface PractitionerRoleSearch {
             }
         }
 
-        return new PractitionerRoleSearchImpl(db, serviceDeclaration);
+        return new PatientSearchImpl(db, serviceDeclaration);
     }
-
-  /**
-   * Invokes the read operation on the database server
-   *
-   * @param id	Id to read
-   * @return	
-   */
-    com.fasterxml.jackson.databind.JsonNode read(String id);
 
   /**
    * Invokes the search operation on the database server
