@@ -30,6 +30,7 @@ import static java.util.stream.Collectors.toList;
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.fhir.ds.PractitionerSearch;
 import com.example.fhirexample.utils.PractitionerResultParser;
+import com.example.fhirexample.utils.PractitionerRoleResultParser;
 import com.marklogic.fhir.ds.PractitionerRoleSearch;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -279,27 +280,8 @@ public class PractitionerResourceProvider implements IResourceProvider {
 
         System.out.println(params);
 
-		JsonNode rootNode = PractitionerRoleSearch.on(thisClient).search(params, 1, 20);
+		ArrayNode rootNode = PractitionerRoleSearch.on(thisClient).search(params, 1, 20);
 
-        return getMLPractitionerRoles(rootNode);
-    }
-    
-    private List<PractitionerRole>  getMLPractitionerRoles(JsonNode rootNode) {
-        List<PractitionerRole> practitionerRoles = new ArrayList<>();
-        if (rootNode != null) {
-            Iterator<Map.Entry<String, JsonNode>> fieldsIterator = rootNode.fields();
-            while (fieldsIterator.hasNext()) {
-                Map.Entry<String, JsonNode> field = fieldsIterator.next();
-                for (int i = 0; i < field.getValue().size(); i++) {
-                    JsonNode docNode = field.getValue().get(i);
-                    if (docNode != null && docNode.isContainerNode()) {
-                        // Parse it
-                        PractitionerRole current = thisParser.parseResource(PractitionerRole.class, docNode.toString());
-                        practitionerRoles.add(current);
-                    }
-                }
-            }
-        }
-        return practitionerRoles;
+        return PractitionerRoleResultParser.parseMultiplePractitionerRoles(rootNode);
     }
 }
