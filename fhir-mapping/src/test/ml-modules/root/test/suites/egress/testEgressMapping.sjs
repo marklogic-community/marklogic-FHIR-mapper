@@ -40,6 +40,30 @@ function testMemberEgress(members) {
   });
 }
 
+function getPractitionerAddressType(types) {
+  if (types.includes('MAILING')) {
+    return 'postal';
+  }
+
+  if (types.includes('PRACTICE')) {
+    return 'physical';
+  }
+
+  return undefined;
+}
+
+function getPractitionerAddressUse(types) {
+  if (types.includes('BILLING')) {
+    return 'billing';
+  }
+
+  if (types.includes('PRACTICE')) {
+    return 'work';
+  }
+
+  return undefined;
+}
+
 function testPractitionerEgress(providers) {
   const result = egressMapping.transformMultiple(providers, 'PractitionerToFHIR');
 
@@ -48,20 +72,56 @@ function testPractitionerEgress(providers) {
     const header = envelope.headers.metadata;
     const provider = envelope.instance.provider;
 
-    utils.logger.info('%O\n\n', entry);
-
     return [
       test.assertEqual(header.publicID, entry.id),
-      test.assertEqual(provider.identifiers.find(id => id.key === 'NPI').value, entry.identifier[0].value),
+      ...['NPI', 'PTIN', 'ITIN', 'MMIS'].map(
+        ident => test.assertEqual(provider.identifiers.find(id => id.key === ident).value, entry.identifier.find(id => id.type.text === ident).value),
+      ),
+      test.assertEqual(
+        provider.providerLocations
+          .filter(loc => loc.effectiveDate)
+          .map(loc => ({
+            period: { start: loc.effectiveDate },
+            system: 'phone',
+            use: 'work',
+            value: loc.phoneNumber.number,
+          })),
+        entry.telecom,
+      ),
+      test.assertEqual(provider.person.prefix, entry.name[0].prefix),
+      test.assertEqual([provider.person.firstName, provider.person.middleName], entry.name[0].given),
+      test.assertEqual(provider.person.lastName, entry.name[0].family),
+      test.assertEqual(
+        provider.providerLocations.map(loc => ({
+          city: loc.address.city,
+          line: [loc.address.line1, loc.address.line2, loc.address.line2].filter(Boolean),
+          state: loc.address.state,
+          type: getPractitionerAddressType(loc.address.addresstype),
+          use: getPractitionerAddressUse(loc.address.addresstype),
+          postalCode: loc.address.zip,
+          country: 'USA',
+        })),
+        entry.address,
+      ),
+      test.assertEqual('Practitioner', entry.resourceType),
     ];
   });
 }
 
 function testPractitionerLocationEgress(providers) {
-  // TODO: Implement a non-trivial test for egress
-  return [
-    test.assertTrue(fn.count(providers) >= 1),
-  ];
+  const result = egressMapping.transformMultiple(providers, 'ProviderToFHIRLocation');
+
+  utils.logger.info(result[0]);
+
+  return flatMap(result, (entry, idx) => {
+    const envelope = providers[idx].toObject().envelope;
+    const header = envelope.headers.metadata;
+    const provider = envelope.instance.provider;
+
+    return [
+      test.assertEqual(1, 1),
+    ];
+  });
 }
 
 function testPractitionerRoleEgress(providers) {

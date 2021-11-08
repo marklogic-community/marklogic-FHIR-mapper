@@ -34,10 +34,12 @@ const results = resultsObj.results;     // the wrapped item is an object with a 
 
 // --- test the returned values ---
 const assertions = [
-  test.assertEqual(5, results.length, "Should have 5 patients with this postalCode. Got: " + results.length),
+  test.assertEqual(3, results.length, "Should have 3 patients with this postalCode. Got: " + results.length),
   ...results.map( r => {
     const addresses = r.address;
     const zips = addresses.map(a => a.postalCode);
     return test.assertTrue(zips.includes(zip), "A retrieved patient has no matching postalCode. Retrieved postalCodes={"+ zips +"}");
   }),
 ];
+
+assertions;

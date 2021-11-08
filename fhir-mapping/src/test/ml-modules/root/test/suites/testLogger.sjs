@@ -135,7 +135,7 @@ class Logger {
 
   interpolateFormatArgs(fmt, varargs) {
     if (typeof fmt !== 'string') {
-      return [fmt, ...varargs].map(part => formatMap.O(part)).join(' ');
+      return [fmt, ...varargs].map(formatMap.O).join(' ');
     }
 
     let idx = 0;

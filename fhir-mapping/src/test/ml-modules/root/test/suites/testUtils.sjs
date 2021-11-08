@@ -43,9 +43,9 @@ module.exports = {
 
   attempt(cb) {
     try {
-      cb();
+      return cb();
     } catch (e) {
-      this.logger.error(e);
+      this.logger.error('%s:\n%s', e.message, e.stack);
     }
   },
 
