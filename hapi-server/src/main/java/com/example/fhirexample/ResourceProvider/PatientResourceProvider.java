@@ -30,7 +30,9 @@ import static java.util.stream.Collectors.toList;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.fhir.ds.PatientSearch;
+import com.example.fhirexample.utils.PatientResultParser;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marklogic.util.Pagination;
 import com.marklogic.util.SearchCriteria;
@@ -77,8 +79,8 @@ public class PatientResourceProvider implements IResourceProvider {
         }
 
         JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-        JsonNode rootNode = PatientSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-        Patient retPatient = getMLPatient(rootNode);
+        ArrayNode rootNode = PatientSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+        Patient retPatient = PatientResultParser.parseSinglePatient(rootNode);
 
         return retPatient;
     }
@@ -113,75 +115,13 @@ public class PatientResourceProvider implements IResourceProvider {
         searchTerms.addAll(searchCriteria(Patient.SP_ADDRESS_POSTALCODE, zip));
         searchTerms.addAll(searchCriteria(Patient.SP_BIRTHDATE, birthdate));
         searchTerms.addAll(searchCriteria(Constants.PARAM_LASTUPDATED, lastUpdated));
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode params = objectMapper.valueToTree(searchTerms);
-            System.out.println("PARAMS:" + params.toString());
-            JsonNode rootNode = PatientSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-            patients = getMLPatients(rootNode);
-        } catch (Exception ex) {
-            throw new ResourceNotFoundException(ex.getMessage());
-        }
-        return patients;
-    }
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode params = objectMapper.valueToTree(searchTerms);
+        
+        ArrayNode rootNode = PatientSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+        patients = PatientResultParser.parseMultiplePatients(rootNode);
 
-    private Patient getMLPatient(JsonNode rootNode) {
-        Patient thisPatient = null;
-        if (rootNode != null) {
-            Iterator<Map.Entry<String, JsonNode>> fieldsIterator = rootNode.fields();
-            JsonNode docNode = null;
-            while (fieldsIterator.hasNext()) {
-                Map.Entry<String, JsonNode> field = fieldsIterator.next();
-                System.out.println("docSize:" + field.getValue().size());
-                for (int i = 0; i < field.getValue().size(); i++) {
-                    docNode = field.getValue().get(i);
-                    if (docNode != null && docNode.isContainerNode()) {
-                        // Parse it
-                        thisPatient = thisParser.parseResource(Patient.class, docNode.toString());
-                    }
-                    if (thisPatient != null) {
-                        System.out.println(thisPatient.getId());
-                        List<HumanName> hnList = thisPatient.getName();
-                        Iterator<HumanName> it = hnList.iterator();
-                        while (it.hasNext()) {
-                            HumanName obj = (HumanName) it.next();
-                            System.out.println(obj.getGiven());
-                        }
-                    }
-                }
-            }
-        }
-        return thisPatient;
-    }
-
-    private List<Patient> getMLPatients(JsonNode rootNode) {
-        List<Patient> patients = new ArrayList<Patient>();
-        Patient thisPatient = null;
-        if (rootNode != null) {
-            Iterator<Map.Entry<String, JsonNode>> fieldsIterator = rootNode.fields();
-            JsonNode docNode = null;
-            while (fieldsIterator.hasNext()) {
-                Map.Entry<String, JsonNode> field = fieldsIterator.next();
-                System.out.println("docSize:" + field.getValue().size());
-                for (int i = 0; i < field.getValue().size(); i++) {
-                    docNode = field.getValue().get(i);
-                    if (docNode != null && docNode.isContainerNode()) {
-                        // Parse it
-                        thisPatient = thisParser.parseResource(Patient.class, docNode.toString());
-                        patients.add(thisPatient);
-                    }
-                    if (!patients.isEmpty()) {
-                        System.out.println(thisPatient.getId());
-                        List<HumanName> hnList = thisPatient.getName();
-                        Iterator<HumanName> it = hnList.iterator();
-                        while (it.hasNext()) {
-                            HumanName obj = (HumanName) it.next();
-                            System.out.println(obj.getGiven());
-                        }
-                    }
-                }
-            }
-        }
         return patients;
     }
 }
