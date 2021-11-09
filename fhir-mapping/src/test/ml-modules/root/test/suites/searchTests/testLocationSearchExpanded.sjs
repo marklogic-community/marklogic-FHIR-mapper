@@ -76,12 +76,7 @@ const assertions = [
     value: '2021-12-31',
     modifier: '<=',
     expectedCount: 4,
-    perResultTest(result, expected) {
-      utils.logger.info(result.meta.lastUpdated);
-
-      return fn.true();
-    }
-  }
+  },
 ].map(opts => {
   const { field, value, modifier, start, limit, expectedCount, perResultTest } = {
     start: 0,
