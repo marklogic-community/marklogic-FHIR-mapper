@@ -96,15 +96,24 @@ const formatMap = {
 formatMap.i = formatMap.d;
 formatMap.u = formatMap.d; // TODO: Convert signed to unsigned in separate function
 
+const LEVEL = Symbol('level');
+
 class Logger {
   constructor(name, level = 'INFO') {
     this.name = name;
-    this.level = level ? level.toUpperCase() : 'INFO';
+    this[LEVEL] = level ? level.toUpperCase() : 'INFO';
     this.levels = ['DEBUG', 'VERBOSE', 'INFO', 'WARN', 'ERROR', 'FATAL'];
   }
 
+  get level() {
+    return this[LEVEL];
+  }
+  set level(level) {
+    this[LEVEL] = level.toUpperCase();
+  }
+
   log(level, msg, ...varargs) {
-    if (this.levels.indexOf(level) >= this.levels.indexOf(this.level)) {
+    if (this.levels.indexOf(level) >= this.levels.indexOf(this[LEVEL])) {
       test.log(`${level} (${this.name}): ${this.interpolateFormatArgs(msg, varargs)}`);
     }
   }
