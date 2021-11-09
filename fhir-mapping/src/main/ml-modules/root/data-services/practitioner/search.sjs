@@ -17,7 +17,8 @@ const fieldMap = new Map([
   ['family', 'lastName'],
   ['name', ['firstName', 'lastName', 'middleName']],
   ['id', 'publicID'],
-  ['_id', 'publicID']
+  ['_id', 'publicID'],
+  ['_version', 'hashValue']
 ]);
 
 const identifierSearchTerms = new Map([
