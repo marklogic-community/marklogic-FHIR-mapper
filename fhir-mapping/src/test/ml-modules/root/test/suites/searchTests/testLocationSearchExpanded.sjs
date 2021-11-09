@@ -3,8 +3,6 @@
 const test = require('/test/test-helper.xqy');
 const utils = require('../testUtils.sjs');
 
-utils.logger.level = 'debug';
-
 const assertions = [
   {
     field: 'id',
@@ -15,8 +13,27 @@ const assertions = [
     },
   },
   {
+    field: 'id',
+    value: '5c8f5d2b-16f9-4e32-a096-d0ad690cc798%',
+    expectedCount: 3,
+    perResultTest(result, expected) {
+      return test.assertTrue(result.id.includes(expected.replace(/%/g, '')));
+    },
+  },
+  {
     field: 'address-city',
     value: 'Colorado',
+    expectedCount: 4,
+    perResultTest(result, expected) {
+      const cities = result.address.map(a => a.city);
+
+      return test.assertTrue(cities.some(city => city.includes(expected)), `A retrieved Location has no matching city. Retrieved cities={${cities}}`);
+    }
+  },
+  {
+    field: 'address-city',
+    value: 'Springs',
+    modifier: 'contains',
     expectedCount: 4,
     perResultTest(result, expected) {
       const cities = result.address.map(a => a.city);
@@ -51,16 +68,27 @@ const assertions = [
     perResultTest(result, expected) {
       const lines = result.address.map(a => a.line);
 
-      return test.assertTrue(lines.some(line => line[0].indexOf(expected) === 0), `A retrieved Location has no matching address. Retrieved addresses={${lines}}`);
+      return test.assertTrue(utils.flatten(lines).some(line => line.startsWith(expected)), `A retrieved Location has no matching address. Retrieved addresses={${lines}}`);
     },
   },
+  {
+    field: '_lastUpdated',
+    value: '2021-12-31',
+    modifier: '<=',
+    expectedCount: 4,
+    perResultTest(result, expected) {
+      utils.logger.info(result.meta.lastUpdated);
+
+      return fn.true();
+    }
+  }
 ].map(opts => {
   const { field, value, modifier, start, limit, expectedCount, perResultTest } = {
     start: 0,
     limit: 4,
     modifier: null,
     expectedCount: null,
-    perResultTest: () => test.true(),
+    perResultTest: () => expectedCount === 0 ? fn.false() : fn.true(),
 
     ...opts
   };
