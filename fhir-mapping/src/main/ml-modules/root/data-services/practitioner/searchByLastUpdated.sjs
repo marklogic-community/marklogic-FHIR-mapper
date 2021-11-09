@@ -12,7 +12,7 @@ var start;
 // currently not implemented.
 var limit;
 
-var results = {};
+var result = [];
 
 xdmp.log("Date [" + date + "]", "debug")
 if (date) {  
@@ -29,17 +29,8 @@ if (date) {
   // Apply paging logic
   var rawDocs = fn.subsequence(searchResults, start, limit)
   // standard transform on searchResults variable
-  var result = egress.transformMultiple(rawDocs, "PractitionerToFHIR");
-
-  results = {
-    "results": result
-  };
-
-} else {
-  results = {
-    "results": "Error in Data Service. date parameter is missing."
-  };
+  result = egress.transformMultiple(rawDocs, "PractitionerToFHIR");
 }
 
 // return the result
-results;
+result;

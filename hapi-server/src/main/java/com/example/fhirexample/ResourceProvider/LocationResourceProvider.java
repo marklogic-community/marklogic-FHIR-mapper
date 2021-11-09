@@ -54,20 +54,23 @@ public class LocationResourceProvider implements IResourceProvider {
      *
      * This method will support a query like this http://localhost:8080/Location/1
      */
-    @Read()
+    @Read(version=true)
     public Location read(@IdParam IdType theId) {
         Location retLocation = new Location();
         Pagination page = new Pagination(null, null);
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            List<SearchCriteria> searchCriteriaList = List.of(searchCriteria(Location.SP_RES_ID, theId.getIdPart()));
 
-            JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-            ArrayNode rootNode = LocationSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-            retLocation = LocationResultParser.parseSingleLocation(rootNode);
-        } catch (Exception ex) {
-            throw new ResourceNotFoundException(ex.getMessage());
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<SearchCriteria> searchCriteriaList = new ArrayList<SearchCriteria>();
+        
+        searchCriteriaList.addAll(List.of(searchCriteria(Location.SP_RES_ID, theId.getIdPart())));
+        if(theId.hasVersionIdPart()) {
+            searchCriteriaList.addAll(List.of(searchCriteria("_version", theId.getVersionIdPart())));
         }
+
+        JsonNode params = objectMapper.valueToTree(searchCriteriaList);
+        ArrayNode rootNode = LocationSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+        retLocation = LocationResultParser.parseSingleLocation(rootNode);
+
         return retLocation;
     }
 

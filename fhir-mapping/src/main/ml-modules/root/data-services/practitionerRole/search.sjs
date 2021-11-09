@@ -58,9 +58,5 @@ for (var rawDoc of rawDocs) {
 // standard transform on searchResults variable
 const result = egress.transformMultiple(practitionerRoles, "ProviderToUSCorePractitionerRole");
 
-const results = {
-  "results": result
-};
-
 // return the result
-results;
+result;

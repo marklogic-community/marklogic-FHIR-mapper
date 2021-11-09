@@ -18,7 +18,7 @@
     "nullable" : true
   } ],
   "return" : {
-    "datatype" : "jsonDocument",
-    "$javaClass":"com.fasterxml.jackson.databind.JsonNode",
+    "datatype" : "array",
+    "$javaClass":"com.fasterxml.jackson.databind.node.ArrayNode",
     "desc" : ""
   }}
