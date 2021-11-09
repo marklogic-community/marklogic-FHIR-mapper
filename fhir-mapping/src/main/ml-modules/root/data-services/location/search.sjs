@@ -37,7 +37,7 @@ for(var criteria of searchList) {
       var valueCriteria = []
       
       for(var value of criteria.values) {
-        valueCriteria.push(op.sql.like(idCol, value))
+        valueCriteria.push(op.eq(idCol, value))
       }
       
       qu.addFilterToConditionList(conditionList, valueCriteria, conditionList)
@@ -48,7 +48,7 @@ for(var criteria of searchList) {
       var valueCriteria = []
       
       for(var value of criteria.values) {
-        valueCriteria.push(op.sql.like(versionCol, value))
+        valueCriteria.push(op.eq(versionCol, value))
       }
       
       qu.addFilterToConditionList(conditionList, valueCriteria, conditionList)
