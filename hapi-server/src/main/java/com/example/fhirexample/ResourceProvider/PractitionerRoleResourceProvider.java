@@ -26,6 +26,8 @@ import java.util.*;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.fhir.ds.PractitionerSearch;
+import com.example.fhirexample.utils.PractitionerResultParser;
+import com.example.fhirexample.utils.PractitionerRoleResultParser;
 import com.marklogic.fhir.ds.LocationSearch;
 import com.marklogic.fhir.ds.PractitionerRoleSearch;
 import com.example.fhirexample.utils.LocationResultParser;
@@ -61,7 +63,7 @@ public class PractitionerRoleResourceProvider implements IResourceProvider {
         JsonNode rootNode = PractitionerRoleSearch.on(thisClient).read(idPart);
 
         // parse the result
-        PractitionerRole result = thisParser.parseResource(PractitionerRole.class, rootNode.toString());
+        PractitionerRole result = PractitionerRoleResultParser.parseSinglePractitionerRole(rootNode);
 
         return result;
     }
@@ -81,8 +83,8 @@ public class PractitionerRoleResourceProvider implements IResourceProvider {
             List<SearchCriteria> searchCriteriaList = searchCriteria(PractitionerRole.SP_PRACTITIONER, practitioner);
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
-            JsonNode rootNode = PractitionerRoleSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
-            List<PractitionerRole> practitionerRoles = getMLPractitionerRoles(rootNode);
+            ArrayNode rootNode = PractitionerRoleSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
+            List<PractitionerRole> practitionerRoles = PractitionerRoleResultParser.parseMultiplePractitionerRoles(rootNode);
 
             results.addAll(practitionerRoles);
             if (theIncludes.contains(new Include("PractitionerRole:practitioner"))) {
@@ -113,9 +115,9 @@ public class PractitionerRoleResourceProvider implements IResourceProvider {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode params = objectMapper.valueToTree(searchCriteriaList);
 
-		JsonNode rootNode = PractitionerSearch.on(thisClient).search(params, 1, 20);
+		ArrayNode rootNode = PractitionerSearch.on(thisClient).search(params, 1, 20);
 
-        return getMLPractitioners(rootNode);
+        return PractitionerResultParser.parseMultiplePractitioners(rootNode);
     }
 
     private List<Location> getLocationInclude(List<PractitionerRole> practitionerRoleResults) {
@@ -139,56 +141,5 @@ public class PractitionerRoleResourceProvider implements IResourceProvider {
 		ArrayNode rootNode = LocationSearch.on(thisClient).search(params, null, null);
 
         return LocationResultParser.parseMultipleLocations(rootNode);
-    }
-
-    private List<Practitioner>  getMLPractitioners(JsonNode rootNode) {
-        List<Practitioner> practitioners = new ArrayList<>();
-        Practitioner thisPractitioner = null;
-        if (rootNode != null) {
-            Iterator<Map.Entry<String, JsonNode>> fieldsIterator = rootNode.fields();
-            JsonNode docNode = null;
-            while (fieldsIterator.hasNext()) {
-                Map.Entry<String, JsonNode> field = fieldsIterator.next();
-                //docNode = field.getValue().get(0);
-                System.out.println("docSize:" + field.getValue().size());
-                for (int i = 0; i < field.getValue().size(); i++) {
-                    docNode = field.getValue().get(i);
-                    if (docNode != null && docNode.isContainerNode()) {
-                        // Parse it
-                        thisPractitioner = thisParser.parseResource(Practitioner.class, docNode.toString());
-                        practitioners.add(thisPractitioner);
-                    }
-                    if (!practitioners.isEmpty()) {
-                        System.out.println(thisPractitioner.getId());
-                        List<HumanName> hnList = thisPractitioner.getName();
-                        Iterator<HumanName> it = hnList.iterator();
-                        while (it.hasNext()) {
-                            HumanName obj = (HumanName) it.next();
-                            System.out.println(obj.getGiven());
-                        }
-                    }
-                }
-            }
-        }
-        return practitioners;
-    }
-
-    private List<PractitionerRole>  getMLPractitionerRoles(JsonNode rootNode) {
-        List<PractitionerRole> practitionerRoles = new ArrayList<>();
-        if (rootNode != null) {
-            Iterator<Map.Entry<String, JsonNode>> fieldsIterator = rootNode.fields();
-            while (fieldsIterator.hasNext()) {
-                Map.Entry<String, JsonNode> field = fieldsIterator.next();
-                for (int i = 0; i < field.getValue().size(); i++) {
-                    JsonNode docNode = field.getValue().get(i);
-                    if (docNode != null && docNode.isContainerNode()) {
-                        // Parse it
-                        PractitionerRole current = thisParser.parseResource(PractitionerRole.class, docNode.toString());
-                        practitionerRoles.add(current);
-                    }
-                }
-            }
-        }
-        return practitionerRoles;
     }
 }

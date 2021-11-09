@@ -58,13 +58,13 @@ public interface PatientSearch {
             }
 
             @Override
-            public com.fasterxml.jackson.databind.JsonNode search(com.fasterxml.jackson.databind.JsonNode search, Integer start, Integer limit) {
+            public com.fasterxml.jackson.databind.node.ArrayNode search(com.fasterxml.jackson.databind.JsonNode search, Integer start, Integer limit) {
                 return search(
                     this.req_search.on(this.dbClient), search, start, limit
                     );
             }
-            private com.fasterxml.jackson.databind.JsonNode search(BaseProxy.DBFunctionRequest request, com.fasterxml.jackson.databind.JsonNode search, Integer start, Integer limit) {
-              return BaseProxy.JsonDocumentType.toJsonNode(
+            private com.fasterxml.jackson.databind.node.ArrayNode search(BaseProxy.DBFunctionRequest request, com.fasterxml.jackson.databind.JsonNode search, Integer start, Integer limit) {
+              return BaseProxy.ArrayType.toArrayNode(
                 request
                       .withParams(
                           BaseProxy.documentParam("search", true, BaseProxy.JsonDocumentType.fromJsonNode(search)),
@@ -86,6 +86,6 @@ public interface PatientSearch {
    * @param limit	Limit results to the given number. Default is 20.
    * @return	
    */
-    com.fasterxml.jackson.databind.JsonNode search(com.fasterxml.jackson.databind.JsonNode search, Integer start, Integer limit);
+    com.fasterxml.jackson.databind.node.ArrayNode search(com.fasterxml.jackson.databind.JsonNode search, Integer start, Integer limit);
 
 }
