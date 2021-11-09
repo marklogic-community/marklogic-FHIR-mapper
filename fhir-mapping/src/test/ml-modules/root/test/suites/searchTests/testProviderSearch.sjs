@@ -14,8 +14,8 @@ const test = require('/test/test-helper.xqy');
 
 const value = 'Fred';
 
-// Get the results from invoking the search. `xdmp.invoke` -> Sequence( { results: [ ... ] } )
-const { results } = fn.head(xdmp.invoke('/data-services/practitioner/search.sjs', {
+// Get the results from invoking the search. `xdmp.invoke` -> Sequence( [ ... ] )
+const results = fn.head(xdmp.invoke('/data-services/practitioner/search.sjs', {
   search: xdmp.quote([{
     field:    'name',
     modifier:  null,

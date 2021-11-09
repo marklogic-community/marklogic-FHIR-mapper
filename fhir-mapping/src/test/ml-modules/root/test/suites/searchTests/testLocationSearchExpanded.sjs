@@ -24,19 +24,6 @@ const assertions = [
     expectedCount: 1,
   },
   {
-    description: 'Partial ID match (startsWith)',
-    search: [
-      {
-        field: 'id',
-        values: ['5c8f5d2b-16f9-4e32-a096-d0ad690cc798%'],
-        test(result) {
-          return test.assertTrue(this.values.some(value => result.id.includes(value.replace(/%/g, ''))), `A retrieved Location has no matching id. Retrieved id={${result.id}}`);
-        },
-      }
-    ],
-    expectedCount: 3,
-  },
-  {
     description: 'City match (startsWith)',
     search: [
       {
