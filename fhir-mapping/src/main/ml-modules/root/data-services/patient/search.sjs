@@ -33,6 +33,7 @@ const fieldMap = new Map([
   ['address-postalcode', 'zip'],
   ['id', 'publicID'],
   ['_id', 'publicID'],
+  ['_version', 'hashValue'],
   ['_lastUpdated', "ingestTimestamp"]
 ]);
 
