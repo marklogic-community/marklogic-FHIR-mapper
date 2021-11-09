@@ -1,8 +1,8 @@
 'use strict';
 /**
- * This test executes the search module for location. Typically, this is called via the generated Java
- * class corresponding to the Location search. Here we call it directly/internally to test the search
- * logic. Testing from .sjs is often easier when JSON objects are involved, or private functinos are 
+ * This test executes the search module for patients. Typically, this is called via the generated Java
+ * class corresponding to the Patient search. Here we call it directly/internally to test the search
+ * logic. Testing from .sjs is often easier when JSON objects are involved, or private functions are
  * being tested; otherwise Java-based testing is ideal.
  * 
  * NOTE: this can be run, debugged and modified directly in Qconsole. Tests are usually developed in Qconsole.
@@ -25,8 +25,8 @@ const start = 0;
 const limit = 4;
 
 // ---  call the search services .sjs module  ---
-const resultsSeq = xdmp.invoke("/data-services/patient/search.sjs", { search, start, limit });
-// returns:  Sequence( { results: [ {<firstloc>}, {<secondloc>},...]} )
+const resultsSeq = xdmp.invoke('/data-services/patient/search.sjs', { search, start, limit });
+// returns:  Sequence( { results: [ {<firstloc>}, {<secondloc>}, ... ] } )
 
 // pull out the locations array from structure above
 const resultsObj = fn.head(resultsSeq); // xdmp.invoke always returns a Sequence object, wrapping the  single item returned by the search service
@@ -34,11 +34,11 @@ const results = resultsObj.results;     // the wrapped item is an object with a 
 
 // --- test the returned values ---
 const assertions = [
-  test.assertEqual(3, results.length, "Should have 3 patients with this postalCode. Got: " + results.length),
+  test.assertEqual(3, results.length, 'Should have 3 patients with this postalCode. Got: ' + results.length),
   ...results.map( r => {
-    const addresses = r.address;
-    const zips = addresses.map(a => a.postalCode);
-    return test.assertTrue(zips.includes(zip), "A retrieved patient has no matching postalCode. Retrieved postalCodes={"+ zips +"}");
+    const zips = r.address.map(a => a.postalCode);
+
+    return test.assertTrue(zips.includes(zip), `A retrieved patient has no matching postalCode. Retrieved postalCodes={${zips}}`);
   }),
 ];
 

@@ -1,10 +1,19 @@
 'use strict';
+/**
+ * This test executes the egress mapping modules for various data types. Typically this is invoked
+ * by the individual search modules. Here we call it directly/internally to test the egress mapping
+ * logic. Testing from .sjs is often easier when JSON objects are involved, or private functions are
+ * being tested; otherwise Java-based testing is ideal.
+ *
+ * NOTE: this can be run, debugged and modified directly in Qconsole. Tests are usually developed in Qconsole.
+ */
 
 const test = require('/test/test-helper.xqy');
 const utils = require('../testUtils.sjs');
 
 const egressMapping = require('/fhir-accelerator/egress-mapping.sjs');
 
+// Ensure member egress maps raw members to FHIR members correctly
 function testMemberEgress(members) {
   const result = egressMapping.transformMultiple(members, 'PatientToFHIR');
 
@@ -59,6 +68,7 @@ function getPractitionerAddressUse(types) {
   return undefined;
 }
 
+// Ensure practitioner egress maps raw providers to FHIR practitioners correctly
 function testPractitionerEgress(providers) {
   const result = egressMapping.transformMultiple(providers, 'PractitionerToFHIR');
 
@@ -103,6 +113,7 @@ function testPractitionerEgress(providers) {
   });
 }
 
+// Ensure practitioner location egress maps raw providers to FHIR locations correctly
 function testPractitionerLocationEgress(providers) {
   const result = egressMapping.transformMultiple(providers, 'ProviderToFHIRLocation');
 
@@ -119,6 +130,7 @@ function testPractitionerLocationEgress(providers) {
   });
 }
 
+// Ensure practitioner role egress maps raw providers to FHIR practitioner roles correctly
 function testPractitionerRoleEgress(providers) {
   const result = egressMapping.transformMultiple(providers, 'ProviderToUSCorePractitionerRole');
 
@@ -141,6 +153,7 @@ function testPractitionerRoleEgress(providers) {
   });
 }
 
+// Convert Sequences returned by `xdmp.directory` to Arrays immediately for easier use in unit tests
 const members = xdmp.directory('/member/').toArray();
 const providers = xdmp.directory('/provider/').toArray();
 
