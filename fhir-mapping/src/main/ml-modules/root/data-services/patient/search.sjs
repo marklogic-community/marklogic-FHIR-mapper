@@ -56,7 +56,7 @@ const query = cts.andQuery([
 
     if (prefixedSearchTerms.has(field)) {
       const xsConverterFn = prefixedSearchTerms.get(field);
-      return cts.jsonPropertyRangeQuery(fieldMap.get(field), modifierPrefixMap.get(modifier), xs[xsConverterFn](values[0]))
+      return cts.jsonPropertyRangeQuery(fieldMap.get(field), egress.modifierPrefixMap.get(modifier) || modifier, xs[xsConverterFn](values[0]))
     } else if (identifierSearchTerms.has(field)) {
       const identifiers = values.map(valueString => {
         // Look for | to see if there is a code system or a type system specified in the query and split the string at the index, if found
