@@ -48,17 +48,24 @@ const query = cts.andQuery([
   ...searchList.map(({ field, modifier, values }) => {
     if (identifierSearchTerms.has(field)) {
       const identifiers = values.map(valueString => {
+        // Look for | to see if there is a code system or a type system specified in the query and split the string at the index, if found
         const index = valueString.lastIndexOf('|');
         const system = valueString.slice(0, index);
         const value = valueString.slice(index + 1);
         const searchProperties = [];
         if (value !== '') {
-          searchProperties.push(cts.jsonPropertyScopeQuery('value', value));
+          searchProperties.push(cts.jsonPropertyValueQuery('value', value));
         }
         if (index > 0) {
+          if (modifier !== null && modifier !== 'of-type') { // of-type forces checking the type system instead of the code system
+            throw new Error(`The "${modifier}" modifier is not supported for identifier searches`);
+          }
+          // Convert from FHIR system values to persistent data values
           const systemType = modifier === 'of-type' ? typeSystemMap.get(system) : codingSystemMap.get(system);
           if (systemType !== undefined) {
-            searchProperties.push(cts.jsonPropertyScopeQuery('key', systemType));
+            searchProperties.push(cts.jsonPropertyValueQuery('type', systemType));
+          } else {
+            searchProperties.push(cts.jsonPropertyValueQuery('type', system));
           }
         }
         return searchProperties;
