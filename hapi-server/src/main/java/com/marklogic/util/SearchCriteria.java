@@ -136,11 +136,11 @@ public class SearchCriteria {
     // https://www.hl7.org/fhir/search.html#prefix
     private static Map<String, String> dateModifierMap = Map.ofEntries(
         // Date & Numeric
-        entry(ParamPrefixEnum.EQUAL.toString(), "="),
-        entry(ParamPrefixEnum.GREATERTHAN_OR_EQUALS.toString(), ">="),
-        entry(ParamPrefixEnum.GREATERTHAN.toString(), ">"),
-        entry(ParamPrefixEnum.LESSTHAN_OR_EQUALS.toString(), "<="),
-        entry(ParamPrefixEnum.LESSTHAN.toString(), "<"),
+        entry(ParamPrefixEnum.EQUAL.toString(), "eq"),
+        entry(ParamPrefixEnum.GREATERTHAN_OR_EQUALS.toString(), "ge"),
+        entry(ParamPrefixEnum.GREATERTHAN.toString(), "gt"),
+        entry(ParamPrefixEnum.LESSTHAN_OR_EQUALS.toString(), "le"),
+        entry(ParamPrefixEnum.LESSTHAN.toString(), "lt"),
         entry(ParamPrefixEnum.NOT_EQUAL.toString(), "ne"),
         entry(ParamPrefixEnum.APPROXIMATE.toString(), "ap"),
         // Period
