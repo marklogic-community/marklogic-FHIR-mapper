@@ -37,10 +37,10 @@ const fieldMap = new Map([
   ['_lastUpdated', "ingestTimestamp"]
 ]);
 
-const codingSystemMap = new Map([
+const typeSystemMap = new Map([
   ['http://hl7.org/fhir/sid/us-ssn', 'SSN']
 ]);
-const typeSystemMap = new Map([
+const codingSystemMap = new Map([
   ['http://terminology.hl7.org/CodeSystem/v2-0203|SS', 'SSN'],
   ['http://terminology.hl7.org/CodeSystem/v2-0203|MA', 'MEDICAID_ID']
 ]);
@@ -59,22 +59,30 @@ const query = cts.andQuery([
       return cts.jsonPropertyRangeQuery(fieldMap.get(field), modifierPrefixMap.get(modifier), xs[xsConverterFn](values[0]))
     } else if (identifierSearchTerms.has(field)) {
       const identifiers = values.map(valueString => {
+        // Look for | to see if there is a code system or a type system specified in the query and split the string at the index, if found
         const index = valueString.lastIndexOf('|');
         const system = valueString.slice(0, index);
         const value = valueString.slice(index + 1);
         const searchProperties = [];
         if (value !== '') {
-          searchProperties.push(cts.jsonPropertyScopeQuery('value', value));
+          searchProperties.push(cts.jsonPropertyValueQuery('value', value));
         }
         if (index > 0) {
+          if (modifier !== null && modifier !== 'of-type') { // of-type forces checking the type system instead of the code system
+            throw new Error(`The "${modifier}" modifier is not supported for identifier searches`);
+          }
+          // Convert from FHIR system values to persistent data values
           const systemType = modifier === 'of-type' ? typeSystemMap.get(system) : codingSystemMap.get(system);
           if (systemType !== undefined) {
-            searchProperties.push(cts.jsonPropertyScopeQuery('type', systemType));
+            searchProperties.push(cts.jsonPropertyValueQuery('type', systemType));
+          } else {
+            searchProperties.push(cts.jsonPropertyValueQuery('type', system));
           }
         }
         return searchProperties;
       })
 
+      // Only look for matching identifiers in the member's identifiers field (exclude relatives)
       return cts.jsonPropertyScopeQuery(identifierSearchTerms.get(field), cts.andQuery(identifiers));
     } else {
       return cts.jsonPropertyValueQuery(fieldMap.get(field), searchValues,
