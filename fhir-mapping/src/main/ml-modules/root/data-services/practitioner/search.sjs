@@ -24,19 +24,19 @@ const fieldMap = new Map([
 const identifierSearchTerms = new Map([
   ['identifier', 'identifiers']
 ]);
-const codingSystemMap = new Map([
+const typeSystemMap = new Map([
   ['http://hl7.org/fhir/sid/us-ssn', 'SSN'],
   ['http://hl7.org/fhir/sid/us-npi', 'NPI'],
 ]);
-const typeSystemMap = new Map([
-  ['MMIS', 'http://terminology.hl7.org/CodeSystem/v2-0203|PRN'],
-  ['EIN', 'http://terminology.hl7.org/CodeSystem/v2-0203|EN'],
-  ['PTIN', 'http://terminology.hl7.org/CodeSystem/v2-0203|TAX'],
-  ['ITIN', 'http://terminology.hl7.org/CodeSystem/v2-0203|TAX'],
-  ['NCPDP', 'http://terminology.hl7.org/CodeSystem/v2-0203RPH|'],
-  ['DEA', 'http://terminology.hl7.org/CodeSystem/v2-0203|DEA'],
-  ['NPI', 'http://terminology.hl7.org/CodeSystem/v2-0203|NPI'],
-  ['SSN', 'http://terminology.hl7.org/CodeSystem/v2-0203|SS']
+const codingSystemMap = new Map([
+  ['http://terminology.hl7.org/CodeSystem/v2-0203|PRN', 'MMIS'],
+  ['http://terminology.hl7.org/CodeSystem/v2-0203|EN', 'EIN'],
+  ['http://terminology.hl7.org/CodeSystem/v2-0203|TAX', 'PTIN'],
+  ['http://terminology.hl7.org/CodeSystem/v2-0203|TAX', 'ITIN'],
+  ['http://terminology.hl7.org/CodeSystem/v2-0203RPH|', 'NCPDP'],
+  ['http://terminology.hl7.org/CodeSystem/v2-0203|DEA', 'DEA'],
+  ['http://terminology.hl7.org/CodeSystem/v2-0203|NPI', 'NPI'],
+  ['http://terminology.hl7.org/CodeSystem/v2-0203|SS', 'SSN']
 ]);
 
 const searchList = search ? JSON.parse(search) : [];

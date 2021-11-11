@@ -37,10 +37,10 @@ const fieldMap = new Map([
   ['_lastUpdated', "ingestTimestamp"]
 ]);
 
-const codingSystemMap = new Map([
+const typeSystemMap = new Map([
   ['http://hl7.org/fhir/sid/us-ssn', 'SSN']
 ]);
-const typeSystemMap = new Map([
+const codingSystemMap = new Map([
   ['http://terminology.hl7.org/CodeSystem/v2-0203|SS', 'SSN'],
   ['http://terminology.hl7.org/CodeSystem/v2-0203|MA', 'MEDICAID_ID']
 ]);
