@@ -13,6 +13,7 @@ import ca.uhn.fhir.rest.annotation.Offset;
 import ca.uhn.fhir.model.api.Include;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenAndListParam;
+import ca.uhn.fhir.rest.param.TokenOrListParam;
 import ca.uhn.fhir.rest.param.StringOrListParam;
 import ca.uhn.fhir.rest.param.StringAndListParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
@@ -240,7 +241,7 @@ public class PractitionerResourceProvider implements IResourceProvider {
 
     @Search
     public List<DomainResource> findPractitionersByResIdentifier(
-            @RequiredParam(name=Practitioner.SP_RES_ID) StringOrListParam theParam,
+            @RequiredParam(name=Practitioner.SP_RES_ID) TokenOrListParam theParam,
             @Offset Integer theOffset,
             @Count Integer theCount,
             @IncludeParam(reverse=true, allow={"PractitionerRole:practitioner"}) Set<Include> theReverseIncludes) {
