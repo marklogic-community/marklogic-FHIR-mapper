@@ -1,6 +1,7 @@
 package com.marklogic.util;
 
 import ca.uhn.fhir.rest.param.*;
+import ca.uhn.fhir.rest.server.exceptions.*;
 
 import java.util.List;
 import java.util.Map;
@@ -112,6 +113,32 @@ public class SearchCriteria {
             .collect(toList());
 
         return new SearchCriteria(field, modifier, values);
+    }
+
+    public static List<SearchCriteria> practitionerReferenceAndSearchCriteria(String field, ReferenceAndListParam referenceAndList) {
+        List<SearchCriteria> values = new ArrayList<SearchCriteria>();
+        if (referenceAndList != null) {
+            values = referenceAndList.getValuesAsQueryTokens().stream()
+                .map(referenceOrList -> practitionerReferenceOrSearchCriteria(field, referenceOrList))
+                .collect(toList());
+        }
+        return values;
+    }
+
+    public static SearchCriteria practitionerReferenceOrSearchCriteria(String field, ReferenceOrListParam referenceOrList) {
+        List<ReferenceParam> valueTokens = referenceOrList.getValuesAsQueryTokens();
+        List<String> values = valueTokens.stream()
+            .map(reference -> parsePractitionerReferenceParam(reference))
+            .collect(toList());
+
+        return searchCriteria(field, values);
+    }
+
+    public static String parsePractitionerReferenceParam(ReferenceParam reference) {
+        if(reference.hasResourceType() && !reference.getResourceType().equalsIgnoreCase("Practitioner")) {
+            throw new InvalidRequestException("Expected a Practitioner Reference but got '" + reference.getResourceType() + "'.");
+        }
+        return reference.getIdPart();
     }
 
     private static String coerceTokenToString(TokenParam token) {

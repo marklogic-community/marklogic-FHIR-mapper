@@ -11,6 +11,7 @@ import ca.uhn.fhir.rest.annotation.Offset;
 
 import ca.uhn.fhir.model.api.Include;
 import ca.uhn.fhir.rest.param.StringAndListParam;
+import ca.uhn.fhir.rest.param.ReferenceAndListParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import org.hl7.fhir.dstu2.model.IdType;
@@ -37,6 +38,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.marklogic.util.SearchCriteria;
 import com.marklogic.util.Pagination;
 import static com.marklogic.util.SearchCriteria.searchCriteria;
+import com.marklogic.util.SearchCriteria;
 
 public class PractitionerRoleResourceProvider implements IResourceProvider {
 
@@ -70,17 +72,15 @@ public class PractitionerRoleResourceProvider implements IResourceProvider {
 
     @Search
     public List<DomainResource> search(
-            @OptionalParam(name=PractitionerRole.SP_PRACTITIONER) StringAndListParam practitioner,
+            @OptionalParam(name=PractitionerRole.SP_PRACTITIONER) ReferenceAndListParam practitioner,
             @Offset Integer theOffset,
             @Count Integer theCount,
             @IncludeParam(allow={"PractitionerRole:practitioner", "PractitionerRole:location"}) Set<Include> theIncludes) {
-
-        System.out.println("findPractitionerRolesByPractitioner");
         List<DomainResource> results = new ArrayList<>();
         Pagination page = new Pagination(theOffset, theCount);
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            List<SearchCriteria> searchCriteriaList = searchCriteria(PractitionerRole.SP_PRACTITIONER, practitioner);
+            List<SearchCriteria> searchCriteriaList = SearchCriteria.practitionerReferenceAndSearchCriteria(PractitionerRole.SP_PRACTITIONER, practitioner);
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
             ArrayNode rootNode = PractitionerRoleSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
