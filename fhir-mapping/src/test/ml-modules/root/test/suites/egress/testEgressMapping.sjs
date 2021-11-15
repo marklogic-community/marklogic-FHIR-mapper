@@ -134,8 +134,6 @@ function testPractitionerLocationEgress(providers) {
 function testPractitionerRoleEgress(providers) {
   const result = egressMapping.transformMultiple(providers, 'ProviderToUSCorePractitionerRole');
 
-  utils.logger.info(result[0]);
-
   return utils.flatMap(result, (entry, idx) => {
     const envelope = providers[idx].toObject().envelope;
     const header = envelope.headers.metadata;

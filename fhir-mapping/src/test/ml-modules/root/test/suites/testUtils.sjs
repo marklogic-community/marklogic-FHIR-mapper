@@ -1,7 +1,12 @@
 const test = require('/test/test-helper.xqy');
 
-const logger = require('./testLogger.sjs').instance('testUtils.sjs');
+const printf = require('/data-services/utils/printf.sjs');
 
+/**
+ * Base path for finding test-data directory from a given test suite
+ *
+ * @type   {string}
+ */
 const basePath = test.__CALLER_FILE__.split('/').slice(0, -1).concat('test-data').join('/');
 
 /**
@@ -31,9 +36,24 @@ const basePath = test.__CALLER_FILE__.split('/').slice(0, -1).concat('test-data'
  * @property {string[]} permissions (Optional) A list of permissions to use instead of inheriting from the source database.
  */
 
-module.exports = {
-  logger,
+/**
+ * @typedef SearchDefinition
+ *
+ * @property {string}    field    The field to search on
+ * @property {string}    modifier The value search modifier, or `null` if there is no modifier to be applied
+ * @property {unknown[]} values   The values to search for (OR-joined)
+ */
 
+/**
+ * @typedef TestDefinition
+ *
+ * @property {string}             description   The test's description
+ * @property {SearchDefinition[]} search        The search criteria for the test (AND-joined)
+ *
+ * @property {number}             expectedCount (Optional) The expected number of results
+ */
+
+module.exports = {
   /**
    * Determine the absolute path a document is stored at based on the unit test file calling this function
    *
@@ -99,7 +119,7 @@ module.exports = {
     try {
       return cb(...args);
     } catch (e) {
-      this.logger.error('%s:\n%s', e.message, e.stack);
+      test.log(printf(e));
     }
   },
   /**
@@ -132,11 +152,11 @@ module.exports = {
    *
    * @return {void}
    *
-   * @throws If the object is missing any of the required properties, or the property is null/undefined
+   * @throws If the object is missing any of the required properties, or a property is present but undefined
    */
   requireProperties(obj, ...props) {
     const keys = Object.keys(obj);
-    const missing = props.filter(prop => !keys.includes(prop) || obj[prop] === undefined || obj[prop] === null);
+    const missing = props.filter(prop => !keys.includes(prop) || obj[prop] === undefined);
 
     if (missing.length > 0) {
       throw new Error(`Missing required properties in provided object: ${missing.map(k => `"${k}"`).join(', ')}`);
@@ -154,7 +174,7 @@ module.exports = {
     try {
       this.requireProperties(opts, 'path');
     } catch (e) {
-      this.logger.error('Unable to load test documents: %O', e);
+      test.log(printf('Unable to load test documents: %O', e));
 
       throw e;
     }
@@ -163,7 +183,14 @@ module.exports = {
     const { baseUri, collections, destinationDb, path, permissions, recursive, sourceDb } = options;
 
     const fullPath = this.getAbsolutePath(path);
-    this.logger.info(`Inserting all documents in directory "${fullPath}" from database "${xdmp.databaseName(sourceDb)}" into database "${xdmp.databaseName(destinationDb)}"`);
+    test.log(
+      printf(
+        'Inserting all documents in directory "%s" from database "%s" into database "%s"',
+        fullPath,
+        xdmp.databaseName(sourceDb),
+        xdmp.databaseName(destinationDb),
+      ),
+    );
 
     const documents = this.findDocumentsAlongPath(fullPath, recursive, sourceDb).toArray().map(doc => ({
       baseURI: doc.baseURI,
@@ -171,7 +198,7 @@ module.exports = {
       doc,
       permissions,
     }));
-    this.logger.debug(`Retrieved ${documents.length} documents in source database to insert`);
+    test.log(printf('Retrieved %d documents in source database to insert', documents.length));
 
     if (!collections) {
       this.insertOriginalDocumentCollections(documents, sourceDb);
@@ -184,13 +211,13 @@ module.exports = {
     xdmp.invokeFunction(
       () => {
         try {
-          this.logger.debug('Inserting documents to destination database');
+          test.log('Inserting documents to destination database');
           for (const d of documents) {
             xdmp.documentInsert(d.baseURI.replace(fullPath, baseUri), d.doc, d.permissions, d.collections);
           }
-          this.logger.debug('Finished inserting documents to destination database');
+          test.log('Finished inserting documents to destination database');
         } catch (e) {
-          this.logger.error(e);
+          test.log(printf(e));
         }
       },
       { database: destinationDb, transactionMode: 'update-auto-commit' },
@@ -208,7 +235,7 @@ module.exports = {
     try {
       this.requireProperties(opts, 'path');
     } catch (e) {
-      this.logger.error('Unable to unload test documents: %O', e);
+      test.log(printf('Unable to unload test documents: %O', e));
 
       throw e;
     }
@@ -217,25 +244,78 @@ module.exports = {
     const { baseUri, path, destinationDb, recursive, sourceDb } = options;
 
     const fullPath = this.getAbsolutePath(path);
-    this.logger.info(`Removing all documents from database "${xdmp.databaseName(destinationDb)}" which have a matching document in directory "${fullPath}" in database "${xdmp.databaseName(sourceDb)}"`);
+    test.log(
+      printf(
+        'Removing all documents from database "%s" which have a matching document in directory "%s" in database "%s"',
+        xdmp.databaseName(destinationDb),
+        fullPath,
+        xdmp.databaseName(sourceDb),
+      ),
+    );
 
     const documents = this.findDocumentsAlongPath(fullPath, recursive, sourceDb);
-    this.logger.debug(`Found ${fn.count(documents)} documents in source database to remove`);
+    test.log(printf('Found %d documents in source database to remove', fn.count(documents)));
 
     xdmp.invokeFunction(
       () => {
         try {
           declareUpdate();
-          this.logger.debug('Removing documents from destination database');
+          test.log('Removing documents from destination database');
           for (const d of documents) {
             xdmp.documentDelete(d.baseURI.replace(fullPath, baseUri), { ifNotExists: 'allow' });
           }
-          this.logger.debug('Finished removing documents from destination database');
+          test.log('Finished removing documents from destination database');
         } catch (e) {
-          this.logger.error(e);
+          test.log(printf(e));
         }
       },
       { database: destinationDb, transactionMode: 'update-auto-commit' },
     );
+  },
+
+  /**
+   * Run tests defined by an array of TestDefinition objects against a given module, returning an array of the individual assertions run by each test
+   *
+   * @param  {string}           module  The path to the module which is being tested
+   * @param  {TestDefinition[]} tests   An array of test definitions to run
+   *
+   * @return {unknown[]}
+   */
+  runTestsAgainstModule(module, tests) {
+    return this.flatMap(tests, opts => {
+      try {
+        this.requireProperties(opts, 'description', 'search');
+      } catch (e) {
+        throw new Error(`Unable to run test for "${opts.description || '<Missing Description>'}": ${e.message}`);
+      }
+
+      const { description, search, start, limit, expectedCount } = { expectedCount: null, ...opts };
+
+      try {
+        for (const parameter of search) {
+          this.requireProperties(parameter, 'field', 'modifier', 'values');
+        }
+      } catch (e) {
+        throw new Error(`Unable to run test for "${description}": a search parameter is missing one or more required fields: ${e.message}`);
+      }
+
+      const results = fn.head(xdmp.invoke(module, {
+        search: xdmp.quote(search.map(parameter => ({ field: parameter.field, modifier: parameter.modifier, values: parameter.values }))),
+        start,
+        limit,
+      }));
+
+      const returnedAssertions = [];
+
+      if (Number.isSafeInteger(expectedCount)) {
+        returnedAssertions.push(
+          test.assertEqual(expectedCount, results.length, `${description}: Expected ${expectedCount} results, got ${results.length}`),
+        );
+      } else {
+        test.log(printf(results.length, results));
+      }
+
+      return returnedAssertions.concat(this.flatMap(results, r => search.map(parameter => parameter.test ? parameter.test(r) : fn.true())));
+    });
   },
 };

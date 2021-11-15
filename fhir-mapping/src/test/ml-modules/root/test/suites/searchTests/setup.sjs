@@ -6,4 +6,4 @@ const test = require('/test/test-helper.xqy');
 // Here you might insert a document into the test database that each of your tests will modify.
 // If no test-specific setup is required, this file may be deleted.
 // Each setup runs in its own transaction.
-test.log("sample-tests Setup COMPLETE....")
+test.log("search tests Setup COMPLETE....")
