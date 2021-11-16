@@ -115,28 +115,28 @@ public class SearchCriteria {
         return new SearchCriteria(field, modifier, values);
     }
 
-    public static List<SearchCriteria> practitionerReferenceAndSearchCriteria(String field, ReferenceAndListParam referenceAndList) {
+    public static List<SearchCriteria> referenceAndParamToSearchCriteria(String field, ReferenceAndListParam referenceAndList, List<String> referenceTypes) {
         List<SearchCriteria> values = new ArrayList<SearchCriteria>();
         if (referenceAndList != null) {
             values = referenceAndList.getValuesAsQueryTokens().stream()
-                .map(referenceOrList -> practitionerReferenceOrSearchCriteria(field, referenceOrList))
+                .map(referenceOrList -> referenceOrParamToSearchCriteria(field, referenceOrList, referenceTypes))
                 .collect(toList());
         }
         return values;
     }
 
-    public static SearchCriteria practitionerReferenceOrSearchCriteria(String field, ReferenceOrListParam referenceOrList) {
+    public static SearchCriteria referenceOrParamToSearchCriteria(String field, ReferenceOrListParam referenceOrList, List<String> referenceTypes) {
         List<ReferenceParam> valueTokens = referenceOrList.getValuesAsQueryTokens();
         List<String> values = valueTokens.stream()
-            .map(reference -> parsePractitionerReferenceParam(reference))
+            .map(reference -> parseReferenceParam(reference, referenceTypes))
             .collect(toList());
 
         return searchCriteria(field, values);
     }
 
-    public static String parsePractitionerReferenceParam(ReferenceParam reference) {
-        if(reference.hasResourceType() && !reference.getResourceType().equalsIgnoreCase("Practitioner")) {
-            throw new InvalidRequestException("Expected a Practitioner Reference but got '" + reference.getResourceType() + "'.");
+    public static String parseReferenceParam(ReferenceParam reference, List<String> referenceTypes) {
+        if(reference.hasResourceType() && !referenceTypes.contains(reference.getResourceType())) {
+            throw new InvalidRequestException("Expected {"+ String.join("|", referenceTypes) +"} Reference but got '" + reference.getResourceType() + "'.");
         }
         return reference.getIdPart();
     }

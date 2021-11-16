@@ -80,7 +80,7 @@ public class PractitionerRoleResourceProvider implements IResourceProvider {
         Pagination page = new Pagination(theOffset, theCount);
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            List<SearchCriteria> searchCriteriaList = SearchCriteria.practitionerReferenceAndSearchCriteria(PractitionerRole.SP_PRACTITIONER, practitioner);
+            List<SearchCriteria> searchCriteriaList = SearchCriteria.referenceAndParamToSearchCriteria(PractitionerRole.SP_PRACTITIONER, practitioner, List.of("Practitioner"));
 
             JsonNode params = objectMapper.valueToTree(searchCriteriaList);
             ArrayNode rootNode = PractitionerRoleSearch.on(thisClient).search(params, page.getOffset(), page.getCount());
