@@ -1,0 +1,187 @@
+{
+    "envelope":
+    {
+        "headers":
+        {
+            
+            "ingestTimestamp": "2021-04-07T10:19:48.673181-04:00",
+            "hashValue": "75984859715243521541",
+            "memberId": "1234567890"
+        },
+        "triples":
+        {},
+        "instance":
+        {
+            "member":
+            {
+                "language": "E",
+                "publicID": "02b08341-3569-4370-9d99-a1e47be1cc3f",
+                "recordIdentifier": "75984859715243521541",
+                "status":
+                {
+                    "isAlive": true,
+                    "isEmployed": null
+                },
+                "firstName": "Jake",
+                "lastName": "Jacobs",
+                "middleName": null,
+                "namePrefix": null,
+                "nameSuffix": null,
+                "relationships": [
+                {
+                    "effectiveDate": null,
+                    "expirationDate": null,
+                    "type": "U",
+                    "person": null
+                }],
+                "identifiers": [
+                {
+                    "type": "SSN",
+                    "value": "111111111",
+                    "source": "RECIPIENT"
+                },
+                {
+                    "type": "MEDICAID_ID",
+                    "value": "1234567890",
+                    "source": "RECIPIENT"
+                }],
+                "citizenship": "Y",
+                "dateOfBirth": "1989-04-18",
+                "dateOfDeath": null,
+                "sex": "Male",
+                "race": "Other/Unknown",
+                "maritalStatus": "Unknown",
+                "addresses": [
+                {
+                    "line1": "PO BOX 8765",
+                    "line2": null,
+                    "line3": null,
+                    "city": "Manitou",
+                    "county": "",
+                    "state": "CO",
+                    "zip": "80666-1234",
+                    "types": [
+                        "POSTAL"
+                    ]
+                },
+                {
+                    "line1": "456 Line Dr.",
+                    "line2": "Apt. 728",
+                    "line3": null,
+                    "city": "Manitou",
+                    "county": "",
+                    "state": "CO",
+                    "zip": "80666-1234",
+                    "types": [
+                        "HOME"
+                    ]
+                }],
+                "contacts": [
+                {
+                    "type": "HOME_PHONE",
+                    "value": "1112223333"
+                }],
+                "families": [
+                {
+                    "familyNumber": "47584736",
+                    "foodstampNumber": null,
+                    "head":
+                    {
+                        "language": "E",
+                        "publicID": null,
+                        "status": null,
+                        "firstName": "Jake",
+                        "lastName": "Jacobs",
+                        "middleName": null,
+                        "citizenship": null,
+                        "dateOfBirth": null,
+                        "dateOfDeath": null,
+                        "identifiers": [
+                        {
+                            "type": "MEDICAID_ID",
+                            "value": null,
+                            "source": "FAMILY"
+                        },
+                        {
+                            "type": "HEAD_HOUSEHOLD_ID",
+                            "value": "1524168524",
+                            "source": "FAMILY"
+                        }],
+                        "sex": "Male",
+                        "race": null,
+                        "martialStatus": null,
+                        "addresses": [
+                        {
+                            "line1": "PO BOX 8765",
+                            "line2": null,
+                            "line3": null,
+                            "city": "Manitou",
+                            "county": "",
+                            "state": "CO",
+                            "zip": "80666-1234",
+                            "types": [
+                                "POSTAL"
+                            ]
+                        },
+                        {
+                            "line1": "456 Line Dr.",
+                            "line2": "Apt. 728",
+                            "line3": null,
+                            "city": "Manitou",
+                            "county": "",
+                            "state": "CO",
+                            "zip": "80666-1234",
+                            "types": [
+                                "HOME"
+                            ]
+                        }],
+                        "contacts": [
+                        {
+                            "type": "HOME_PHONE",
+                            "value": "1112223333"
+                        }],
+                        "roles": null,
+                        "masterInfo": null,
+                        "tags": null,
+                        "pregnancies": null,
+                        "namePrefix": null,
+                        "nameSuffix": null,
+                        "relationships": null,
+                        "families": null,
+                        "livingArrangement": null,
+                        "policyRecurringIncome": null,
+                        "facilityType": null,
+                        "facilityNumber": null
+                    },
+                    "familyFinancials":
+                    {
+                        "needAmount": 9804,
+                        "netIncome": 405,
+                        "grossIncome": 0
+                    }
+                }],
+                "pregnancies": [
+                {
+                    "effectiveDate": null,
+                    "expirationDate": null,
+                    "dueDate": null,
+                    "pregancyID": null
+                }],
+                "livingArrangement": "HOME",
+                "policyRecurringIncome": "0",
+                "facilityNumber": null,
+                "facilityType": "PRG",
+                "dialysisEffDate": "1989-07-01",
+                "motherID": null,
+                "lastUpdatedDate": "2021-04-07-04:00"
+            },
+            "info":
+            {
+                "title": "member",
+                "version": "0.0.1",
+                "baseUri": "http://example.com/"
+            }
+        },
+        "attachments": null
+    }
+}
