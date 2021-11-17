@@ -5,6 +5,7 @@ import ca.uhn.fhir.rest.annotation.*;
 import ca.uhn.fhir.rest.api.Constants;
 import ca.uhn.fhir.rest.param.DateParam;
 import ca.uhn.fhir.rest.param.StringAndListParam;
+import ca.uhn.fhir.rest.param.TokenAndListParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 
@@ -76,7 +77,7 @@ public class LocationResourceProvider implements IResourceProvider {
 
     @Search
     public List<Location> search(
-            @OptionalParam(name = Location.SP_RES_ID) StringAndListParam id,
+            @OptionalParam(name = Location.SP_RES_ID) TokenAndListParam id,
             @OptionalParam(name = Constants.PARAM_LASTUPDATED) DateParam lastUpdated,
             @OptionalParam(name = Location.SP_NAME) StringAndListParam name,
             @OptionalParam(name = Location.SP_ADDRESS_CITY) StringAndListParam city,

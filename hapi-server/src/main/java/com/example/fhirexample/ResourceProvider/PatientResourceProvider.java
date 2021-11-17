@@ -87,7 +87,7 @@ public class PatientResourceProvider implements IResourceProvider {
 
     @Search
     public List<Patient> search(
-            @OptionalParam(name = Patient.SP_RES_ID) StringAndListParam id,
+            @OptionalParam(name = Patient.SP_RES_ID) TokenAndListParam id,
             @OptionalParam(name = Patient.SP_IDENTIFIER) TokenAndListParam identifier,
             @OptionalParam(name = Patient.SP_FAMILY) StringAndListParam family,
             @OptionalParam(name = Patient.SP_GIVEN) StringAndListParam given,

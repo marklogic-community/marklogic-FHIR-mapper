@@ -1,6 +1,7 @@
 package com.marklogic.util;
 
 import ca.uhn.fhir.rest.param.*;
+import ca.uhn.fhir.rest.server.exceptions.*;
 
 import java.util.List;
 import java.util.Map;
@@ -112,6 +113,32 @@ public class SearchCriteria {
             .collect(toList());
 
         return new SearchCriteria(field, modifier, values);
+    }
+
+    public static List<SearchCriteria> referenceAndParamToSearchCriteria(String field, ReferenceAndListParam referenceAndList, List<String> referenceTypes) {
+        List<SearchCriteria> values = new ArrayList<SearchCriteria>();
+        if (referenceAndList != null) {
+            values = referenceAndList.getValuesAsQueryTokens().stream()
+                .map(referenceOrList -> referenceOrParamToSearchCriteria(field, referenceOrList, referenceTypes))
+                .collect(toList());
+        }
+        return values;
+    }
+
+    public static SearchCriteria referenceOrParamToSearchCriteria(String field, ReferenceOrListParam referenceOrList, List<String> referenceTypes) {
+        List<ReferenceParam> valueTokens = referenceOrList.getValuesAsQueryTokens();
+        List<String> values = valueTokens.stream()
+            .map(reference -> parseReferenceParam(reference, referenceTypes))
+            .collect(toList());
+
+        return searchCriteria(field, values);
+    }
+
+    public static String parseReferenceParam(ReferenceParam reference, List<String> referenceTypes) {
+        if(reference.hasResourceType() && !referenceTypes.contains(reference.getResourceType())) {
+            throw new InvalidRequestException("Expected {"+ String.join("|", referenceTypes) +"} Reference but got '" + reference.getResourceType() + "'.");
+        }
+        return reference.getIdPart();
     }
 
     private static String coerceTokenToString(TokenParam token) {
