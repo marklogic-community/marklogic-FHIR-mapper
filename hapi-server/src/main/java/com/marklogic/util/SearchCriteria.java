@@ -80,7 +80,7 @@ public class SearchCriteria {
         List<String> values = valueTokens.stream().map(t -> t.getValueAsString()).collect(toList());
 
         DateParam firstParam = valueTokens.get(0);
-        String modifier = firstParam.getPrefix().toString();
+        String modifier = dateModifierMap.get(firstParam.getPrefix().toString());
 
         return new SearchCriteria(field, modifier, values);
     }
