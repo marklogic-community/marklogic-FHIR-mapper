@@ -55,23 +55,22 @@ const fieldToQueryMap = {
     return cts.jsonPropertyScopeQuery('identifiers', cts.andQuery(identifiers));
   },
   given(values, modifier) {
-    return cts.jsonPropertyValueQuery('firstName', values, qu.defaultTextSearchModifiers);
+    return qu.textSearch('firstName', values, modifier);
   },
   family(values, modifier) {
-    return cts.jsonPropertyValueQuery('lastName', values, qu.defaultTextSearchModifiers);
+    return qu.textSearch('lastName', values, modifier);
   },
   name(values, modifier) {
-    return cts.jsonPropertyValueQuery(['firstName', 'lastName', 'middleName'], values, qu.defaultTextSearchModifiers);
+    return qu.textSearch(['firstName', 'lastName', 'middleName'], values, modifier);
   },
   _id(values, modifier) {
-    return cts.jsonPropertyValueQuery('publicID', values, qu.defaultTextSearchModifiers);
+    return qu.textSearch('publicID', values, modifier);
   },
   _version(values, modifier) {
-    return cts.jsonPropertyValueQuery('hashValue', values, qu.defaultTextSearchModifiers);
+    return qu.textSearch('hashValue', values, modifier);
   },
-  // FUTURE: expand to allow additional timestamp comparison operations?
   _lastUpdated(values, modifier) {
-    return cts.jsonPropertyRangeQuery('ingestTimestamp', '>=', xs.dateTime(`${values[0]}T00:00:00`));
+    return cts.jsonPropertyRangeQuery('ingestTimestamp', egress.modifierPrefixMap.get(modifier) || modifier, xs.dateTime(`${values[0]}T00:00:00`));
   },
 
   // Aliases for above entries

@@ -33,10 +33,9 @@ import ca.uhn.fhir.rest.annotation.OptionalParam;
 import ca.uhn.fhir.rest.annotation.Read;
 import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.api.Constants;
-import ca.uhn.fhir.rest.param.DateRangeParam;
+import ca.uhn.fhir.rest.param.DateAndListParam;
 import ca.uhn.fhir.rest.param.StringAndListParam;
 import ca.uhn.fhir.rest.param.TokenAndListParam;
-import ca.uhn.fhir.rest.param.TokenOrListParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 
@@ -95,7 +94,7 @@ public class PractitionerResourceProvider implements IResourceProvider {
         @OptionalParam(name = Practitioner.SP_FAMILY) StringAndListParam family,
         @OptionalParam(name = Practitioner.SP_NAME) StringAndListParam name,
         @OptionalParam(name = Practitioner.SP_GIVEN) StringAndListParam given,
-        @OptionalParam(name = Constants.PARAM_LASTUPDATED) DateRangeParam lastUpdated,
+        @OptionalParam(name = Constants.PARAM_LASTUPDATED) DateAndListParam lastUpdated,
         @Offset Integer offset,
         @Count Integer count,
         @IncludeParam(reverse = true, allow={"PractitionerRole:practitioner"}) Set<Include> reverseIncludes

@@ -11,15 +11,19 @@ module.exports = {
     return [value, system];
   },
 
+  textSearch(columns, values, modifier, searchModifiers = this.defaultTextSearchModifiers) {
+    return cts.jsonPropertyValueQuery(columns, egress.searchValuesWithModifier(values, modifier), searchModifiers);
+  },
+
   searchToQuery(fieldToQueryMap) {
     return ({ field, modifier, values }) => {
+      // If there is a matching field handler in the fieldToQueryMap, invoke that and return the result.
       if (field in fieldToQueryMap) {
         return fieldToQueryMap[field](values, modifier);
       }
 
-      const searchValues = egress.searchValuesWithModifier(values, modifier);
-
-      return cts.jsonPropertyValueQuery(field, searchValues, qu.defaultTextSearchModifiers);
+      // Default handler for fields which do not have an entry in the fieldToQueryMap. Treats all unknown fields as text.
+      return this.textSearch(field, values, modifier);
     };
   },
 };
