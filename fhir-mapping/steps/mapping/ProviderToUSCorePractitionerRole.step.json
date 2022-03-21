@@ -23,6 +23,8 @@
   "stepDefinitionType": "mapping",
   "stepId": "ProviderToUSCorePractitionerRole-mapping",
   "lastUpdated": "2021-05-04T08:18:37.6928387-06:00",
+  "$uriExpressionNote": "We're using this to perform in-memory mappings of documents which do not write to disk, so the actual URI expression doesn't matter so long as it doesn't evaluate to `null` at runtime",
+  "uriExpression": "\"/temp.json\"",
   "properties": {
     "id": {
       "sourcedFrom": "concat(/document/envelope/headers/metadata/publicID, \"-PractitionerRole-\", /index)"
