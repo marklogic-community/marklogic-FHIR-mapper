@@ -96,7 +96,7 @@ const searchResults = cts.search(query);
 // Apply paging logic
 const rawDocs = fn.subsequence(searchResults, start, limit)
 // standard transform on searchResults variable
-const result = egress.transformMultiple(rawDocs, "PatientToFHIR");
+const result = egress.transform(rawDocs, "PatientToFHIR");
 
 // return the result
 result;

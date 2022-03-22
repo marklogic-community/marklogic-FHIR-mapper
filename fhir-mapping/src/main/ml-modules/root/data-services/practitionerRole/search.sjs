@@ -56,7 +56,7 @@ for (var rawDoc of rawDocs) {
 //const rawDocs = fn.subsequence(searchResults, start, limit)
 
 // standard transform on searchResults variable
-const result = egress.transformMultiple(practitionerRoles, "ProviderToUSCorePractitionerRole");
+const result = egress.transform(practitionerRoles, "ProviderToUSCorePractitionerRole");
 
 // return the result
 result;

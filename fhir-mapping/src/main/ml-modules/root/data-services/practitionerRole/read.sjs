@@ -31,8 +31,13 @@ const rawDoc = fn.head(cts.search(query));
 
 const rawPractitionerRole = fn.head(rawDoc.xpath("//providerAffiliations["+index+"]"))
 
-const result = egress.preMapMapAndUnwrap(rawPractitionerRole, "ProviderToUSCorePractitionerRole");
+// egress.transform forces single documents to be an array of one document so grab the first result
+const result = egress.transform(rawPractitionerRole, "ProviderToUSCorePractitionerRole");
 
-result
+if (result.length !== 1) {
+  throw `Expected 1 result, got ${result.length}`
+}
+
+result[0]
 
 

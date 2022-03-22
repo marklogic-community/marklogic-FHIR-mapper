@@ -16,7 +16,22 @@
   "sourceDatabase": "data-hub-STAGING",
   "targetDatabase": "data-hub-FINAL",
   "headers": { },
-  "interceptors": [ ],
+  "interceptors": [
+    {
+      "path": "/lib/interceptors/expand-instance.sjs",
+      "when": "beforeMain",
+      "vars": {
+        "entireRecord": true,
+        "destination": "role",
+        "indexDestination": "index",
+        "siblingName": "providerAffiliations"
+      }
+    },
+    {
+      "path": "/lib/interceptors/unwrap-es-fhir.sjs",
+      "when": "beforeContentPersisted"
+    }
+  ],
   "provenanceGranularityLevel": "coarse",
   "customHook": { },
   "stepDefinitionName": "entity-services-mapping",
@@ -25,24 +40,25 @@
   "lastUpdated": "2021-05-04T08:18:37.6928387-06:00",
   "$uriExpressionNote": "We're using this to perform in-memory mappings of documents which do not write to disk, so the actual URI expression doesn't matter so long as it doesn't evaluate to `null` at runtime",
   "uriExpression": "\"/temp.json\"",
+  "sourceRecordScope": "entireRecord",
   "properties": {
     "id": {
-      "sourcedFrom": "concat(/document/envelope/headers/metadata/publicID, \"-PractitionerRole-\", /index)"
+      "sourcedFrom": "concat(/envelope/headers/metadata/publicID, \"-PractitionerRole-\", /envelope/instance/index)"
     },
     "practitioner": {
-      "sourcedFrom": "/document",
+      "sourcedFrom": "/envelope/headers/metadata",
       "properties": {
         "type": {
           "sourcedFrom": "\"Practitioner\""
         },
         "reference": {
-          "sourcedFrom": "concat(\"Practitioner/\", envelope/headers/metadata/publicID)"
+          "sourcedFrom": "concat(\"Practitioner/\", publicID)"
         }
       },
       "targetEntityType": "#/definitions/Reference"
     },
     "organization": {
-      "sourcedFrom": "/node",
+      "sourcedFrom": "envelope/instance/role",
       "properties": {
         "type": {
           "sourcedFrom": "\"Organization\""
@@ -88,10 +104,10 @@
       "targetEntityType": "#/definitions/Reference"
     },
     "location": {
-      "sourcedFrom": "document/envelope/instance/provider/providerLocations[address/addresstype = 'PRACTICE']",
+      "sourcedFrom": "/envelope/instance/provider/providerLocations[address/addresstype = 'PRACTICE']",
       "properties": {
         "reference": {
-          "sourcedFrom": "concat(\"Location/\", /document/envelope/headers/metadata/publicID, \"-providerLocations-\", count(preceding-sibling::providerLocations)+1)"
+          "sourcedFrom": "concat(\"Location/\", /envelope/headers/metadata/publicID, \"-providerLocations-\", count(preceding-sibling::providerLocations)+1)"
         },
         "type": {
           "sourcedFrom": "\"Location\""

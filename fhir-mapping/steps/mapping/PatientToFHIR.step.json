@@ -16,7 +16,12 @@
   "sourceDatabase": "data-hub-STAGING",
   "targetDatabase": "data-hub-FINAL",
   "headers": { },
-  "interceptors": [ ],
+  "interceptors": [
+    {
+      "path": "/lib/interceptors/unwrap-es-fhir.sjs",
+      "when": "beforeContentPersisted"
+    }
+  ],
   "provenanceGranularityLevel": "coarse",
   "customHook": { },
   "stepDefinitionName": "entity-services-mapping",
@@ -25,12 +30,13 @@
   "lastUpdated": "2021-05-03T10:56:36.963535-06:00",
   "$uriExpressionNote": "We're using this to perform in-memory mappings of documents which do not write to disk, so the actual URI expression doesn't matter so long as it doesn't evaluate to `null` at runtime",
   "uriExpression": "\"/temp.json\"",
+  "sourceRecordScope": "entireRecord",
   "properties": {
     "id": {
-      "sourcedFrom": "instance/member/publicID"
+      "sourcedFrom": "envelope/instance/member/publicID"
     },
     "identifier": {
-      "sourcedFrom": "instance/member/identifiers",
+      "sourcedFrom": "envelope/instance/member/identifiers",
       "properties": {
         "value": {
           "sourcedFrom": "value"
@@ -60,7 +66,7 @@
       "targetEntityType": "#/definitions/Identifier"
     },
     "name": {
-      "sourcedFrom": "instance/member",
+      "sourcedFrom": "envelope/instance/member",
       "properties": {
         "family": {
           "sourcedFrom": "lastName"
@@ -78,16 +84,16 @@
       "targetEntityType": "#/definitions/HumanName"
     },
     "gender": {
-      "sourcedFrom": "lower-case(instance/member/sex)"
+      "sourcedFrom": "lower-case(envelope/instance/member/sex)"
     },
     "birthDate": {
-      "sourcedFrom": "instance/member/dateOfBirth"
+      "sourcedFrom": "envelope/instance/member/dateOfBirth"
     },
     "deceasedDateTime": {
-      "sourcedFrom": "instance/member/dateOfDeath"
+      "sourcedFrom": "envelope/instance/member/dateOfDeath"
     },
     "maritalStatus": {
-      "sourcedFrom": "instance/member/maritalStatus",
+      "sourcedFrom": "envelope/instance/member/maritalStatus",
       "properties": {
         "text": {
           "sourcedFrom": "."
@@ -111,7 +117,7 @@
       "targetEntityType": "#/definitions/CodeableConcept"
     },
     "address": {
-      "sourcedFrom": "instance/member/addresses",
+      "sourcedFrom": "envelope/instance/member/addresses",
       "properties": {
         "line": {
           "sourcedFrom": "line1|line2|line3"
@@ -148,10 +154,10 @@
       "targetEntityType": "#/definitions/Address"
     },
     "meta": {
-      "sourcedFrom": "document/envelope/headers",
+      "sourcedFrom": "envelope/headers",
       "properties": {
         "id": {
-          "sourcedFrom": "/instance/member/publicID"
+          "sourcedFrom": "/envelope/instance/member/publicID"
         },
         "versionId": {
           "sourcedFrom": "hashValue"
@@ -169,13 +175,13 @@
       "sourcedFrom": "\"en-us\""
     },
     "active": {
-      "sourcedFrom": "instance/member/status/isAlive"
+      "sourcedFrom": "envelope/instance/member/status/isAlive"
     },
     "resourceType": {
       "sourcedFrom": "\"Patient\""
     },
     "communication": {
-      "sourcedFrom": "instance/member",
+      "sourcedFrom": "envelope/instance/member",
       "properties": {
         "language": {
           "sourcedFrom": ".",
@@ -199,7 +205,7 @@
       "targetEntityType": "#/definitions/Communication"
     },
     "telecom": {
-      "sourcedFrom": "instance/member/contacts",
+      "sourcedFrom": "envelope/instance/member/contacts",
       "properties": {
         "value": {
           "sourcedFrom": "value"
@@ -214,7 +220,7 @@
       "targetEntityType": "#/definitions/ContactPoint"
     },
     "contact": {
-      "sourcedFrom": "instance/member/families",
+      "sourcedFrom": "envelope/instance/member/families",
       "properties": {
         "relationship": {
           "sourcedFrom": "head",

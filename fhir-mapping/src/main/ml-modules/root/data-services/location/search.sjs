@@ -102,6 +102,6 @@ for(var current of queryResults) {
    rawResults.push(current.doc.xpath('/envelope/instance/provider/providerLocations').toArray()[current.index-1])
 }
 
-let result = egress.transformMultiple(rawResults, "ProviderToFHIRLocation");
+let result = egress.transform(rawResults, "ProviderToFHIRLocation");
 
 result
