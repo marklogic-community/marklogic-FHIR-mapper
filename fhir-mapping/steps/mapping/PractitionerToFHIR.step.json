@@ -25,18 +25,19 @@
         "entries": [
           {
             "dest": "telecom",
+            "sourcedFrom": "/envelope/instance/provider/providerLocations",
             "breakouts": [
               {
                 "type": "phone",
-                "xpath": "/envelope/instance/provider/providerLocations/phoneNumber[string-length(concat(number, ext)) gt 0]"
+                "xpath": "phoneNumber[string-length(concat(number, ext)) gt 0]"
               },
               {
                 "type": "email",
-                "xpath": "/envelope/instance/provider/providerLocations/email[text() and string-length() gt 0]"
+                "xpath": "email[text() and string-length() gt 0]"
               },
               {
                 "type": "fax",
-                "xpath": "/envelope/instance/provider/providerLocations/faxNumber[text() and string-length() gt 0]"
+                "xpath": "faxNumber[text() and string-length() gt 0]"
               }
             ]
           }

@@ -30,28 +30,28 @@ For instructions on how to integrate the FHIR Mapper into your existing ODS proj
 
 ### Deploy to MarkLogic
 
-To deploy the application to a fresh ML server, run ```./gradlew mlDeploy``` from the ```fhir-mapping``` folder.
+To deploy the application to a fresh ML server, run `./gradlew mlDeploy` from the `fhir-mapping` folder.
 
 ### Load Example Data
-To load the sample set of data that comes with the project (in ```src/main/ml-data```), run ```./gradlew mlLoadData``` from the ```fhir-mapping``` folder.
+To load the sample set of data that comes with the project (in `src/main/ml-data`), run `./gradlew mlLoadData` from the `fhir-mapping` folder.
 
 ### Run HAPI Server
-To run the HAPI server that connects to and queries data from the project you just deployed, run ```./gradlew bootRun``` from the ```hapi-server``` folder.
+To run the HAPI server that connects to and queries data from the project you just deployed, run `./gradlew bootRun` from the `hapi-server` folder.
 
 ### Viewing the data in the HAPI Overlay
 Navigate to http://localhost:8081 to bring up a HAPI test page.
 
 #### Note about PractitionerRoles
-The PractitionerRole date type was included in the project to show the handling of ```_include``` and ```_revinclude``` query parameters. The data is not fully mapped into the FHIR resource.
+The PractitionerRole date type was included in the project to show the handling of `_include` and `_revinclude` query parameters. The data is not fully mapped into the FHIR resource.
 
 #### Example queries
-- From the [Pracitioner query page](http://localhost:8081/resource?serverId=home&pretty=false&_summary=&resource=Practitioner), search for ```family``` name ```Doe```. You should get 2 Practitioner results back (John and Jane Doe).
-- From the [Patient query page](http://localhost:8081/resource?serverId=home&pretty=false&_summary=&resource=Patient), search for ```given``` name ```Jake```. You should get 1 Patient result back (Jake Jacobs).
+- From the [Pracitioner query page](http://localhost:8081/resource?serverId=home&pretty=false&_summary=&resource=Practitioner), search for `family` name `Doe`. You should get 2 Practitioner results back (John and Jane Doe).
+- From the [Patient query page](http://localhost:8081/resource?serverId=home&pretty=false&_summary=&resource=Patient), search for `given` name `Jake`. You should get 1 Patient result back (Jake Jacobs).
 
 #### Known Issues in the HAPI Overlay
 
-- ```OperationDefinition``` is displayed as a resource type that can be interacted with even though the server does not support it
-- The ```Practitioner``` search page gives an option to ```Include``` the relationship ```PractitionerRole:practitioner```. This will cause an error if slected because the server (and the spec) is expecting ```PractitionerRole:practitioner``` to be a ```ReverseInclude```. If you modify the search that is performed to have ```_revinclude```, instead of ```_include``` the server will respond as expected.
+- `OperationDefinition` is displayed as a resource type that can be interacted with even though the server does not support it
+- The `Practitioner` search page gives an option to `Include` the relationship `PractitionerRole:practitioner`. This will cause an error if slected because the server (and the spec) is expecting `PractitionerRole:practitioner` to be a `ReverseInclude`. If you modify the search that is performed to have `_revinclude`, instead of `_include` the server will respond as expected.
 
 These issues are most likely caused by the fact that we copied the overlay into our project by hand instead of using the maven overly capabilities because this is a gradle project. A possible workaround is to stand up a HAPI Overlay server in it's own project and configure it to communicate with the FHIR server that is run in the hapi-server project.
 
@@ -67,27 +67,27 @@ There are 3 types of tests in the Demo Project:
 Below are instructions to view and run each of these tests.
 
 ### JS Unit Tests
-The JavaScript tests are MarkLogic .sjs modules located in ```fhir-mapping/src/test/ml-modules/root/test``` and are run using the marklogic-unit-test libraries. 
+The JavaScript tests are MarkLogic .sjs modules located in `fhir-mapping/src/test/ml-modules/root/test` and are run using the marklogic-unit-test libraries.
 
 Note: Running these tests will clear the database and load test specific data. If you want to use the HAPI server to view FHIR records or run the other tests, you will need to load the example data again.
 
 #### Running From Commandline
-To execute the JavaScript tests, run ```./gradelw mlUnitTest``` in the ```fhir-mapping``` directory. This will run the tests and display some basic PASS/FAIL information. To see more details about a given test, run them from the test UI.
+To execute the JavaScript tests, run `./gradelw mlUnitTest` in the `fhir-mapping` directory. This will run the tests and display some basic PASS/FAIL information. To see more details about a given test, run them from the test UI.
 
 #### Running From Test UI
 To execute the JavaScript tests from a UI, visit [http://localhost:8011/test/default.xqy] and select the test you want to run from the list.
 
 ### Data Service Proxy Tests
-The tests of the Data Service Proxies are located in ```fhir-mapping/src/test/java```. These test [MarkLogic Data Services] (https://docs.marklogic.com/guide/java/DataServices) by invoking the generated Java proxies.
+The tests of the Data Service Proxies are located in `fhir-mapping/src/test/java`. These test [MarkLogic Data Services] (https://docs.marklogic.com/guide/java/DataServices) by invoking the generated Java proxies.
 
 #### Running the Tests
-To execute the Data Service tests, run ```./gradelw test``` in the ```fhir-mapping``` directory. This will run the tests using JUnit. To View more details about the test results see the report that JUnit generates by opening ```fhir-mapping/build/reports/tests/test/index.html``` in a browser.
+To execute the Data Service tests, run `./gradelw test` in the `fhir-mapping` directory. This will run the tests using JUnit. To View more details about the test results see the report that JUnit generates by opening `fhir-mapping/build/reports/tests/test/index.html` in a browser.
 
 ### HAPI Resource Provider Tests
-The tests of the ResourceProvider implementations are located in ```hapi-server/src/test/java```. These test our implementations of [IResourceProvider] (https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-server/ca/uhn/fhir/rest/server/IResourceProvider.html) which in turn call MarkLogic Data Service Proxy classes.
+The tests of the ResourceProvider implementations are located in `hapi-server/src/test/java`. These test our implementations of [IResourceProvider] (https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-server/ca/uhn/fhir/rest/server/IResourceProvider.html) which in turn call MarkLogic Data Service Proxy classes.
 
 #### Running the Tests
-To execute the Resource Provider tests, run ```./gradelw test``` in the ```hapi-server``` directory. This will run the tests using JUnit. To View more details about the test results see the report that JUnit generates by opening ```hapi-server/build/reports/tests/test/index.html``` in a browser.
+To execute the Resource Provider tests, run `./gradelw test` in the `hapi-server` directory. This will run the tests using JUnit. To View more details about the test results see the report that JUnit generates by opening `hapi-server/build/reports/tests/test/index.html` in a browser.
 
 ## Extending and Adapting
 See the included Cookbook.md guide to extend and integrate this project with your data or existing project.

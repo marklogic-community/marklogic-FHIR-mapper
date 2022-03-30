@@ -23,8 +23,7 @@
       "vars": {
         "entireRecord": true,
         "destination": "location",
-        "indexDestination": "index",
-        "siblingName": "providerLocations"
+        "siblingNames": "providerLocations"
       }
     },
     {
@@ -35,18 +34,19 @@
         "entries": [
           {
             "dest": "telecom",
+            "sourcedFrom": "/envelope/instance/location",
             "breakouts": [
               {
                 "type": "phone",
-                "xpath": "/envelope/instance/location/phoneNumber[string-length(concat(number, ext)) gt 0]"
+                "xpath": "phoneNumber[string-length(concat(number, ext)) gt 0]"
               },
               {
                 "type": "email",
-                "xpath": "/envelope/instance/location/email[text() and string-length() gt 0]"
+                "xpath": "email[text() and string-length() gt 0]"
               },
               {
                 "type": "fax",
-                "xpath": "/envelope/instance/location/faxNumber[text() and string-length() gt 0]"
+                "xpath": "faxNumber[text() and string-length() gt 0]"
               }
             ]
           }
@@ -69,13 +69,13 @@
   "sourceRecordScope": "entireRecord",
   "properties": {
     "id": {
-      "sourcedFrom": "concat(envelope/headers/metadata/publicID, \"-providerLocations-\", envelope/instance/index)"
+      "sourcedFrom": "concat(envelope/headers/metadata/publicID, \"-providerLocations-\", envelope/instance/locationIndices/providerLocations)"
     },
     "meta": {
       "sourcedFrom": "envelope/headers/metadata",
       "properties": {
         "id": {
-          "sourcedFrom": "concat(publicID, \"-providerLocations-\", /envelope/instance/index)"
+          "sourcedFrom": "concat(publicID, \"-providerLocations-\", /envelope/instance/locationIndices/providerLocations)"
         },
         "versionId": {
           "sourcedFrom": "hashValue"

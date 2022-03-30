@@ -44,7 +44,7 @@ function isIterable(obj) {
  *
  * @return {Node[]}
  */
-function runPreStepInterceptorOnDocuments(docs, mapping) {
+function runPreStepInterceptorsOnNodes(docs, mapping) {
   // Create a contentArray so that we can pull the processed documents back out after running interceptors
   const contentArray = (isIterable(docs) ? [...docs] : [docs]).map(value => ({ value }));
 
@@ -103,7 +103,7 @@ const modifierPrefixMap = new Map([
 ]);
 
 module.exports = {
-  runPreStepInterceptorOnDocuments,
+  runPreStepInterceptorsOnNodes,
   transform,
   searchValuesWithModifier,
   modifierPrefixMap,

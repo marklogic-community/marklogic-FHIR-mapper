@@ -96,18 +96,19 @@ function testPractitionerEgress(providers) {
       test.assertEqual(provider.person.prefix, entry.name[0].prefix),
       test.assertEqual([provider.person.firstName, provider.person.middleName].join(' ').trim(), entry.name[0].given.join(' ').trim()),
       test.assertEqual(provider.person.lastName, entry.name[0].family),
-      test.assertEqual(
-        provider.providerLocations.map(loc => ({
-          city: loc.address.city,
-          line: [loc.address.line1, loc.address.line2, loc.address.line3].filter(Boolean),
-          state: loc.address.state,
-          type: getPractitionerAddressType(loc.address.addresstype),
-          use: getPractitionerAddressUse(loc.address.addresstype),
-          postalCode: loc.address.zip,
-          country: 'USA',
-        })),
-        entry.address,
-      ),
+      ...utils.flatMap(provider.providerLocations, ({ address }, idx) => {
+        const entryAddr = entry.address[idx];
+
+        return [
+          test.assertEqual([address.line1, address.line2, address.line3].join(' ').trim(), entryAddr.line.join(' ').trim()),
+          test.assertEqual(address.city, entryAddr.city),
+          test.assertEqual(address.state, entryAddr.state),
+          test.assertEqual(getPractitionerAddressType(address.addresstype), entryAddr.type),
+          test.assertEqual(getPractitionerAddressUse(address.addresstype), entryAddr.use),
+          test.assertEqual(address.zip, entryAddr.postalCode),
+          test.assertEqual('USA', entryAddr.country),
+        ];
+      }),
       test.assertEqual('Practitioner', entry.resourceType),
     ];
   });
@@ -122,8 +123,8 @@ function testPractitionerLocationEgress(providers) {
   return utils.flatMap(result, (entry, idx) => {
     const location = locations[idx];
 
-    const nodeIndex = location.xpath('count(preceding-sibling::providerLocations)+1').toArray()[0];
-    const envelope = location.xpath('root()').toArray()[0].toObject().envelope;
+    const nodeIndex = fn.head(location.xpath('count(preceding-sibling::providerLocations)+1'));
+    const envelope = fn.head(location.xpath('root()')).toObject().envelope;
     const header = envelope.headers.metadata;
     const provider = envelope.instance.provider;
 
@@ -154,8 +155,8 @@ function testPractitionerRoleEgress(providers) {
   return utils.flatMap(result, (entry, idx) => {
     const role = roles[idx];
 
-    const nodeIndex = role.xpath('count(preceding-sibling::providerAffiliations)+1').toArray()[0];
-    const envelope = role.xpath('root()').toArray()[0].toObject().envelope;
+    const nodeIndex = fn.head(role.xpath('count(preceding-sibling::providerAffiliations)+1'));
+    const envelope = fn.head(role.xpath('root()')).toObject().envelope;
     const header = envelope.headers.metadata;
     const provider = envelope.instance.provider;
 

@@ -23,8 +23,7 @@
       "vars": {
         "entireRecord": true,
         "destination": "role",
-        "indexDestination": "index",
-        "siblingName": "providerAffiliations"
+        "siblingNames": "providerAffiliations"
       }
     },
     {
@@ -43,7 +42,7 @@
   "sourceRecordScope": "entireRecord",
   "properties": {
     "id": {
-      "sourcedFrom": "concat(/envelope/headers/metadata/publicID, \"-PractitionerRole-\", /envelope/instance/index)"
+      "sourcedFrom": "concat(/envelope/headers/metadata/publicID, \"-PractitionerRole-\", /envelope/instance/roleIndices/providerAffiliations)"
     },
     "practitioner": {
       "sourcedFrom": "/envelope/headers/metadata",
