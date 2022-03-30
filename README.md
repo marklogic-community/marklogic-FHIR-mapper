@@ -88,3 +88,6 @@ The tests of the ResourceProvider implementations are located in ```hapi-server/
 
 #### Running the Tests
 To execute the Resource Provider tests, run ```./gradelw test``` in the ```hapi-server``` directory. This will run the tests using JUnit. To View more details about the test results see the report that JUnit generates by opening ```hapi-server/build/reports/tests/test/index.html``` in a browser.
+
+## Extending and Adapting
+See the included Cookbook.md guide to extend and integrate this project with your data or existing project.
