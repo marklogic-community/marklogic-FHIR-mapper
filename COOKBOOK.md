@@ -67,7 +67,7 @@ One more pre-step interceptor included in this project is [`flat-to-multiple.sjs
 The `expand-instance` interceptor is intended to take a subnode of a document and insert that subnode into `/envelope/instance` *alongside* the original instance, as well as its index (in the case where the subnode is one of many). It takes additional variable values in order to customize how it is run:
 
 Name               | Optional | Type                    | Default     | Description
-------s-----------:|:--------:|:-----------------------:|:-----------:|:-----------
+------------------:|:--------:|:-----------------------:|:-----------:|:-----------
 `entireRecord`     | Yes      | `boolean`               | `false`     | Return the entire document record in the interceptor output vs. only the instance. Use `true` if using `"sourceRecordScope": "entireRecord"` in step definition.
 `destination`      | Yes      | `string`                | `"subnode"` | The name of the node which will be inserted into `/envelope/instance` with the subnode provided to the mapping
 `siblingNames`     | Yes      | `string` or `string[]`  | N/A         | The name(s) of ancestor nodes for the current subnode which you would like to get the XQuery index of. These will be inserted into `/envelope/instance` under a node named `<destination>Indices` and the name of the sibling used to get the index, e.g.: `"siblingNames": ["test1", "test2"]` would result in `"subnodeIndices": { "test1": 1, "test2": 5, ... }` appearing in the instance.
@@ -96,7 +96,7 @@ entries.breakouts.`xpath` | No       | `string`                | N/A         | A
 
 This interceptor is idempotent because it will overwrite the additional nodes from previous runs.
 
-> Note that if using both `expand-instance` and `flat-to-multiple`, the `flat-to-multiple` pre-step interceptor entry *must* come after `expand-instance`, as otherwise `flat-to-multiple` will fail because there will not be a `/envelope/instance` that it can insert into.
+> Note that if using both `expand-instance` and `flat-to-multiple`, the `flat-to-multiple` pre-step interceptor entry *must* come after `expand-instance`, as otherwise `flat-to-multiple` will fail because there will not be a `/envelope/instance` in the source node.
 
 #### Testing your pre-step interceptor configuration
 You can test your configured pre-step interceptors for a given mapping in qConsole using a script like the one below. Adjust this script to have `nodes` containing the documents or subnodes that you want to convert into a FHIR resource. In this example, we are getting the list of `providerLocations` from a single test document, and viewing the results of running the mapping step's pre-step interceptors on each one.
@@ -113,10 +113,10 @@ const nodes = cts.doc('/provider/provider1.json').xpath('//providerLocations');
 Sequence.from(egress.runPreStepInterceptorsOnNodes(nodes, 'ProviderToFHIRLocation'));
 ```
 
-#### Making the pre-mapped documents available to the DHC Mapping UI
+#### Making the pre-mapped documents available to the Data Hub Mapping UI
 For the DHF mapping GUI to work best, you will need to insert pre-mapped sample document(s) into the database. This allows you to see the (pre-mapped) input to the mapping, and allows you to use the “Test” functionality to iteratively refine your mapping.
 
-You can write your pre-mapped documents to the database using qConsole with a script like the one below. Adjust this script to have `nodes` containing the documents or subnodes that you want to convert into a FHIR resource. In this example (from the sample project), we are getting the list of `providerLocations` from a single test document, and writing the pre-mapped version of each one back into the database. This will allow the Mapping UI in DataHub Central to see the pre-mapped source document and properly map it into the FHIR Resource Entities.
+You can write your pre-mapped documents to the database using qConsole with a script like the one below. Adjust this script to have `nodes` containing the documents or subnodes that you want to convert into a FHIR resource. In this example (from the sample project), we are getting the list of `providerLocations` from a single test document, and writing the pre-mapped version of each one back into the database. This will allow the Mapping UI in Data Hub to see the pre-mapped source document and properly map it into the FHIR Resource Entities.
 
 ```js
 'use strict';
@@ -158,7 +158,7 @@ Launch Data Hub central and create a new mapping step in this tool. Unlike in a 
 Begin adding mappings using xpath, functions, and custom functions (if needed) as usual with a data hub mapping step. Use the "test" button to verify your mappings are working well for your test records.
 
 ### Writing Data Services
-Data services are the interface between the client (e.g. HAPI which is provided as a reference implementation of a FHIR server) and the Database. For detailed information on defining a Data Service, visit [https://docs.marklogic.com/guide/java/DataServices]
+Data services are the interface between the client (e.g. HAPI which is provided as a reference implementation of a FHIR server) and the Database. More detailed instructions on defining Data Services is [available online](https://docs.marklogic.com/guide/java/DataServices).
 
 In general, our data services are broken down into 6 sections:
 - Build a query based on the input parameters
@@ -190,15 +190,15 @@ In our example project, we used a generic `search` parameter that is a stringifi
 
 In adition to the search parameter we included the paging parameters as optional integers.
 
-This is not the only way to pass the search parameters from the client (HAPI) to the Data Service, but it does allow the construction of the query (CTS, Optic, SPARQL, etc.) to be built as a loop over the array of search criteria. For detaild information on input parameters and their types, visit [https://docs.marklogic.com/guide/java/DataServices#id_pgfId-1081233]
+This is not the only way to pass the search parameters from the client (HAPI) to the Data Service, but it does allow the construction of the query (CTS, Optic, SPARQL, etc.) to be built as a loop over the array of search criteria. More detailed information on input parameters and their types is [available online](https://docs.marklogic.com/guide/java/DataServices#id_pgfId-1081233).
 
 Using this format to specify a search will allow you to use some utility functions in the FHIR Mapper project that convert this search paylod to a query. We provide examples for both cts.query and Optic approaches. The ctsQueryUtils.sjs and opticQueryUtils.sjs libraries help interpret and execute these search requests.
 
 #### Output Types
-It is recomended that any Data Service function that only returns a single resource (FHIR read and vread specifically) be configured to return a document, while a function that can return a list of resources (search) be configured to return an array. This will make parsing the results in the client/HAPI server easier. For detailed information on input parameters and their types, visit [https://docs.marklogic.com/guide/java/DataServices#id_pgfId-1081252]
+It is recomended that any Data Service function that only returns a single resource (FHIR read and vread specifically) be configured to return a document, while a function that can return a list of resources (search) be configured to return an array. This will make parsing the results in the client/HAPI server easier. More detailed information on input parameters and their types is [available online](https://docs.marklogic.com/guide/java/DataServices#id_pgfId-1081252).
 
 #### Generating Data Service Proxies
-To generate the Java Proxy classes that interact with the Data Service APIs, you must create and run a Gradle Task which is documented (here)[https://docs.marklogic.com/guide/java/DataServices#id_44346]. An example from this project is listed below:
+To generate the Java Proxy classes that interact with the Data Service APIs, you must [create and run a Gradle Task](https://docs.marklogic.com/guide/java/DataServices#id_44346). An example from this project is listed below:
 
 ```gradle
 task generatePractitioner(type: com.marklogic.client.tools.gradle.EndpointProxiesGenTask) {
@@ -211,12 +211,12 @@ The name and package of the Proxy Class are determined by the `$javaClass` field
 ### Integrating with HAPI server
 The FHIR Mapper project can serve FHIR requests to any client, but HAPI (a popular open-source FHIR server) is provided with the project, and four IResourceProvider subclasses are included to make four resource types work.
 
-The HAPI project has defined its own system of how to define what operations are available in your server and what parameters are allowed/required. Read about that (here)[https://hapifhir.io/hapi-fhir/docs/server_plain/resource_providers.html#resource-providers].
+The HAPI project has defined [its own system of how to define what operations are available](https://hapifhir.io/hapi-fhir/docs/server_plain/resource_providers.html#resource-providers).
 
 To write a new HAPI Resource Provider (IResourceProvider) with the Data Services you created in the steps above, you will follow these steps:
 - Write a search() method with parameters specified using annotations, per the HAPI documentation. Convert these parameters supplied by the HAPI framework into a search request JSON string that will be acceptable to your data service. (in the examples we build a JSON string that represents the search)
 - Call the relevant Data Service function using your generated data service Proxy Classes
-- Parse the results into HAPIs Resource POJOs. Read about that (here)[https://hapifhir.io/hapi-fhir/docs/model/parsers.html]
+- [Parse the results into HAPIs Resource POJOs](https://hapifhir.io/hapi-fhir/docs/model/parsers.html)
 - If any result modifiers are present and supported (include or revinclude for example), search for the relevant Resources
 - Return a Resource Bundle containing all results
 

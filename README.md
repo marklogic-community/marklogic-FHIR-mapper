@@ -78,13 +78,13 @@ To execute the JavaScript tests, run `./gradelw mlUnitTest` in the `fhir-mapping
 To execute the JavaScript tests from a UI, visit [http://localhost:8011/test/default.xqy] and select the test you want to run from the list.
 
 ### Data Service Proxy Tests
-The tests of the Data Service Proxies are located in `fhir-mapping/src/test/java`. These test [MarkLogic Data Services] (https://docs.marklogic.com/guide/java/DataServices) by invoking the generated Java proxies.
+The tests of the Data Service Proxies are located in `fhir-mapping/src/test/java`. These test [MarkLogic Data Services](https://docs.marklogic.com/guide/java/DataServices) by invoking the generated Java proxies.
 
 #### Running the Tests
 To execute the Data Service tests, run `./gradelw test` in the `fhir-mapping` directory. This will run the tests using JUnit. To View more details about the test results see the report that JUnit generates by opening `fhir-mapping/build/reports/tests/test/index.html` in a browser.
 
 ### HAPI Resource Provider Tests
-The tests of the ResourceProvider implementations are located in `hapi-server/src/test/java`. These test our implementations of [IResourceProvider] (https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-server/ca/uhn/fhir/rest/server/IResourceProvider.html) which in turn call MarkLogic Data Service Proxy classes.
+The tests of the ResourceProvider implementations are located in `hapi-server/src/test/java`. These test our implementations of [IResourceProvider](https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-server/ca/uhn/fhir/rest/server/IResourceProvider.html) which in turn call MarkLogic Data Service Proxy classes.
 
 #### Running the Tests
 To execute the Resource Provider tests, run `./gradelw test` in the `hapi-server` directory. This will run the tests using JUnit. To View more details about the test results see the report that JUnit generates by opening `hapi-server/build/reports/tests/test/index.html` in a browser.
