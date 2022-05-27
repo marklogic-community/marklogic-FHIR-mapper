@@ -16,19 +16,54 @@
   "sourceDatabase": "data-hub-STAGING",
   "targetDatabase": "data-hub-FINAL",
   "headers": { },
-  "interceptors": [ ],
+  "interceptors": [
+    {
+      "path": "/lib/interceptors/flat-to-multiple.sjs",
+      "when": "beforeMain",
+      "vars": {
+        "entireRecord": true,
+        "entries": [
+          {
+            "dest": "telecom",
+            "sourcedFrom": "/envelope/instance/provider/providerLocations",
+            "breakouts": [
+              {
+                "type": "phone",
+                "xpath": "phoneNumber[string-length(concat(number, ext)) gt 0]"
+              },
+              {
+                "type": "email",
+                "xpath": "email[text() and string-length() gt 0]"
+              },
+              {
+                "type": "fax",
+                "xpath": "faxNumber[text() and string-length() gt 0]"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "path": "/lib/interceptors/unwrap-es-fhir.sjs",
+      "when": "beforeContentPersisted"
+    }
+  ],
   "provenanceGranularityLevel": "coarse",
   "customHook": { },
   "stepDefinitionName": "entity-services-mapping",
   "stepDefinitionType": "mapping",
   "stepId": "PractitionerToFHIR-mapping",
   "lastUpdated": "2021-05-03T10:56:36.963535-06:00",
+  "$uriExpressionNote": "We're using this to perform in-memory mappings of documents which do not write to disk, so the actual URI expression doesn't matter so long as it doesn't evaluate to `null` at runtime",
+  "uriExpression": "\"/temp.json\"",
+  "sourceRecordScope": "entireRecord",
   "properties": {
     "id": {
-      "sourcedFrom": "document/envelope/headers/metadata/publicID"
+      "sourcedFrom": "envelope/headers/metadata/publicID"
     },
     "identifier": {
-      "sourcedFrom": "instance/provider/identifiers[key = ('MMIS', 'NPI', 'SSN', 'EIN', 'PTIN', 'ITIN', 'NCPDP', 'DEA')]",
+      "sourcedFrom": "envelope/instance/provider/identifiers[key = ('MMIS', 'NPI', 'SSN', 'EIN', 'PTIN', 'ITIN', 'NCPDP', 'DEA')]",
       "properties": {
         "system": {
           "sourcedFrom": "customMemoryLookup(key,'{\"MMIS\": \"https://www.dhhs.gov/PROVIDER\", \"NPI\": \"http://hl7.org/fhir/sid/us-npi\", \"SSN\": \"http://hl7.org/fhir/sid/us-ssn\", \"EIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"PTIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"ITIN\": \"urn:oid:2.16.840.1.113883.4.4\", \"NCPDP\": \"https://online.ncpdp.org\", \"DEA\": \"https://www.deadiversion.usdoj.gov\"}')"
@@ -67,7 +102,7 @@
       "targetEntityType": "#/definitions/Identifier"
     },
     "name": {
-      "sourcedFrom": "instance/provider/person",
+      "sourcedFrom": "envelope/instance/provider/person",
       "properties": {
         "family": {
           "sourcedFrom": "lastName"
@@ -85,19 +120,19 @@
       "targetEntityType": "#/definitions/HumanName"
     },
     "gender": {
-      "sourcedFrom": "instance/provider/person/gender"
+      "sourcedFrom": "envelope/instance/provider/person/gender"
     },
     "birthDate": {
-      "sourcedFrom": "instance/provider/person/birthDate"
+      "sourcedFrom": "envelope/instance/provider/person/birthDate"
     },
     "telecom": {
-      "sourcedFrom": "flatToMultipleEntries(instance/provider/providerLocations,'{\"breakout\":[{\"type\":\"phone\",\"xpath\":\"..//phoneNumber[string-length(concat(number, ext)) gt 0]\"},{\"type\":\"email\",\"xpath\":\"..//email[text() and string-length() gt 0]\"},{\"type\":\"fax\",\"xpath\":\"..//faxNumber[text() and string-length() gt 0]\"}]}')",
+      "sourcedFrom": "envelope/instance/telecom",
       "properties": {
         "value": {
           "sourcedFrom": "if(type eq \"phone\") then concat(source/number, source/ext) else source"
         },
         "period": {
-          "sourcedFrom": "parent",
+          "sourcedFrom": "/envelope/instance/provider/providerLocations[count(preceding-sibling::telecom)+1]",
           "properties": {
             "start": {
               "sourcedFrom": "effectiveDate"
@@ -118,7 +153,7 @@
       "targetEntityType": "#/definitions/ContactPoint"
     },
     "address": {
-      "sourcedFrom": "instance/provider/providerLocations/address",
+      "sourcedFrom": "envelope/instance/provider/providerLocations/address",
       "properties": {
         "line": {
           "sourcedFrom": "(line1|line2|line3)[string-length() gt 0]"
@@ -145,7 +180,7 @@
           "sourcedFrom": "customMemoryLookup(addresstype[1],'{\"LEGAL\": \"billing\", \"PRIMARY\": \"work\"}')"
         },
         "period": {
-          "sourcedFrom": "parent",
+          "sourcedFrom": "..",
           "properties": {
             "start": {
               "sourcedFrom": "effectiveDate"
@@ -163,16 +198,16 @@
       "targetEntityType": "#/definitions/Address"
     },
     "meta": {
-      "sourcedFrom": ".",
+      "sourcedFrom": "envelope/headers/metadata",
       "properties": {
         "id": {
-          "sourcedFrom": "document/envelope/headers/metadata/publicID"
+          "sourcedFrom": "publicID"
         },
         "versionId": {
-          "sourcedFrom": "document/envelope/headers/metadata/hashValue"
+          "sourcedFrom": "hashValue"
         },
         "lastUpdated": {
-          "sourcedFrom": "document/envelope/headers/metadata/ingestTimestamp"
+          "sourcedFrom": "ingestTimestamp"
         },
         "source": {
           "sourcedFrom": "\"MMIS-PROVIDER\""
@@ -187,7 +222,7 @@
       "sourcedFrom": "\"en-us\""
     },
     "active": {
-      "sourcedFrom": "if(instance/provider/providerEnrollment[1]/status eq 'TERMINATED') then fn:false() else fn:true()"
+      "sourcedFrom": "not(envelope/instance/provider/providerEnrollment[1]/status eq 'TERMINATED')"
     },
     "qualification": {
       "sourcedFrom": "",
@@ -214,7 +249,7 @@
       "targetEntityType": "#/definitions/Qualification"
     },
     "communication": {
-      "sourcedFrom": "instance/provider/providerLocations/languages",
+      "sourcedFrom": "envelope/instance/provider/providerLocations/languages",
       "properties": {
         "coding": {
           "sourcedFrom": ".",

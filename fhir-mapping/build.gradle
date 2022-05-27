@@ -14,7 +14,7 @@ plugins {
    id 'net.saliman.properties' version '1.4.6'
 
    // Data Hub plugin
-   id 'com.marklogic.ml-data-hub' version '5.4.2'
+   id 'com.marklogic.ml-data-hub' version '5.7.0'
    //Data services needs these
 	id 'com.marklogic.ml-development-tools' version '5.4.0'
 }
@@ -48,7 +48,7 @@ task generatePatient(type: com.marklogic.client.tools.gradle.EndpointProxiesGenT
 
 repositories {
 	jcenter()
-  maven { url "http://developer.marklogic.com/maven2/" }
+  maven { url "https://developer.marklogic.com/maven2/" }
 }
 
 configurations {

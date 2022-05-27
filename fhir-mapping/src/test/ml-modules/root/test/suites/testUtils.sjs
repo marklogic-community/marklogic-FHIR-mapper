@@ -73,7 +73,7 @@ module.exports = {
    *
    * @return {Document[]}
    */
-  findDocumentsAlongPath(path, recursive = false, database) {
+  findDocumentsAlongPath(path, recursive = false, database = xdmp.modulesDatabase()) {
     return xdmp.invokeFunction(() => xdmp.directory(path, recursive ? 'infinity' : '1'), { database });
   },
 

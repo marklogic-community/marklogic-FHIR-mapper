@@ -15,7 +15,7 @@ const egressMapping = require('/fhir-accelerator/egress-mapping.sjs');
 
 // Ensure member egress maps raw members to FHIR members correctly
 function testMemberEgress(members) {
-  const result = egressMapping.transformMultiple(members, 'PatientToFHIR');
+  const result = egressMapping.transform(members, 'PatientToFHIR');
 
   return utils.flatMap(result, (entry, idx) => {
     const envelope = members[idx].toObject().envelope;
@@ -26,7 +26,7 @@ function testMemberEgress(members) {
       test.assertTrue(entry.identifier.map(id => id.value).includes(member.identifiers.find(id => id.type === 'SSN').value)),
       test.assertTrue(entry.identifier.map(id => id.value).includes(member.identifiers.find(id => id.type === 'MEDICAID_ID').value)),
       test.assertEqual(member.lastName, entry.name[0].family),
-      test.assertEqual([member.firstName, member.middleName].join(' '), entry.name[0].given.join(' ')),
+      test.assertEqual([member.firstName, member.middleName].join(' ').trim(), entry.name[0].given.join(' ').trim()),
       test.assertEqual(member.sex.toLowerCase(), entry.gender.toLowerCase()),
       test.assertEqual(member.dateOfBirth, entry.birthDate),
       test.assertEqual(member.maritalStatus, entry.maritalStatus.text),
@@ -70,7 +70,7 @@ function getPractitionerAddressUse(types) {
 
 // Ensure practitioner egress maps raw providers to FHIR practitioners correctly
 function testPractitionerEgress(providers) {
-  const result = egressMapping.transformMultiple(providers, 'PractitionerToFHIR');
+  const result = egressMapping.transform(providers, 'PractitionerToFHIR');
 
   return utils.flatMap(result, (entry, idx) => {
     const envelope = providers[idx].toObject().envelope;
@@ -94,20 +94,21 @@ function testPractitionerEgress(providers) {
         entry.telecom,
       ),
       test.assertEqual(provider.person.prefix, entry.name[0].prefix),
-      test.assertEqual([provider.person.firstName, provider.person.middleName], entry.name[0].given),
+      test.assertEqual([provider.person.firstName, provider.person.middleName].join(' ').trim(), entry.name[0].given.join(' ').trim()),
       test.assertEqual(provider.person.lastName, entry.name[0].family),
-      test.assertEqual(
-        provider.providerLocations.map(loc => ({
-          city: loc.address.city,
-          line: [loc.address.line1, loc.address.line2, loc.address.line2].filter(Boolean),
-          state: loc.address.state,
-          type: getPractitionerAddressType(loc.address.addresstype),
-          use: getPractitionerAddressUse(loc.address.addresstype),
-          postalCode: loc.address.zip,
-          country: 'USA',
-        })),
-        entry.address,
-      ),
+      ...utils.flatMap(provider.providerLocations, ({ address }, idx) => {
+        const entryAddr = entry.address[idx];
+
+        return [
+          test.assertEqual([address.line1, address.line2, address.line3].join(' ').trim(), entryAddr.line.join(' ').trim()),
+          test.assertEqual(address.city, entryAddr.city),
+          test.assertEqual(address.state, entryAddr.state),
+          test.assertEqual(getPractitionerAddressType(address.addresstype), entryAddr.type),
+          test.assertEqual(getPractitionerAddressUse(address.addresstype), entryAddr.use),
+          test.assertEqual(address.zip, entryAddr.postalCode),
+          test.assertEqual('USA', entryAddr.country),
+        ];
+      }),
       test.assertEqual('Practitioner', entry.resourceType),
     ];
   });
@@ -115,16 +116,31 @@ function testPractitionerEgress(providers) {
 
 // Ensure practitioner location egress maps raw providers to FHIR locations correctly
 function testPractitionerLocationEgress(providers) {
-  const result = egressMapping.transformMultiple(providers, 'ProviderToFHIRLocation');
+  const locations = utils.flatMap(providers, provider => provider.xpath('//providerLocations').toArray());
+
+  const result = egressMapping.transform(locations, 'ProviderToFHIRLocation');
 
   return utils.flatMap(result, (entry, idx) => {
-    const envelope = providers[idx].toObject().envelope;
+    const location = locations[idx];
+
+    const nodeIndex = fn.head(location.xpath('count(preceding-sibling::providerLocations)+1'));
+    const envelope = fn.head(location.xpath('root()')).toObject().envelope;
     const header = envelope.headers.metadata;
     const provider = envelope.instance.provider;
 
-    // TODO: Add additional assertions when more data present in transformed entries
+    const providerLocation = provider.providerLocations[nodeIndex - 1]; // XQY uses 1-based arrays
+
     return [
-      test.assertEqual(`${header.publicID}-providerLocations-1`, entry.id),
+      test.assertEqual(`${header.publicID}-providerLocations-${nodeIndex}`, entry.id),
+      test.assertEqual(`${header.publicID}-providerLocations-${nodeIndex}`, entry.meta.id),
+      test.assertEqual(
+        [
+          providerLocation.address.line1,
+          providerLocation.address.line2,
+          providerLocation.address.line3,
+        ].join(' ').trim(),
+        entry.address[0].line.join(' ').trim(),
+      ),
       test.assertEqual('Location', entry.resourceType),
     ];
   });
@@ -132,15 +148,20 @@ function testPractitionerLocationEgress(providers) {
 
 // Ensure practitioner role egress maps raw providers to FHIR practitioner roles correctly
 function testPractitionerRoleEgress(providers) {
-  const result = egressMapping.transformMultiple(providers, 'ProviderToUSCorePractitionerRole');
+  const roles = utils.flatMap(providers, provider => provider.xpath('//providerAffiliations').toArray());
+
+  const result = egressMapping.transform(roles, 'ProviderToUSCorePractitionerRole');
 
   return utils.flatMap(result, (entry, idx) => {
-    const envelope = providers[idx].toObject().envelope;
+    const role = roles[idx];
+
+    const nodeIndex = fn.head(role.xpath('count(preceding-sibling::providerAffiliations)+1'));
+    const envelope = fn.head(role.xpath('root()')).toObject().envelope;
     const header = envelope.headers.metadata;
     const provider = envelope.instance.provider;
 
     return [
-      test.assertEqual(`${header.publicID}-PractitionerRole-1`, entry.id),
+      test.assertEqual(`${header.publicID}-PractitionerRole-${nodeIndex}`, entry.id),
       test.assertEqual(`Location/${header.publicID}-providerLocations-3`, entry.location[0].reference),
       test.assertEqual('Location', entry.location[0].type),
       test.assertEqual(`Practitioner/${header.publicID}`, entry.practitioner.reference),
@@ -152,8 +173,8 @@ function testPractitionerRoleEgress(providers) {
 }
 
 // Convert Sequences returned by `xdmp.directory` to Arrays immediately for easier use in unit tests
-const members = xdmp.directory('/member/').toArray();
-const providers = xdmp.directory('/provider/').toArray();
+const members = utils.findDocumentsAlongPath(utils.getAbsolutePath('/member/')).toArray();
+const providers = utils.findDocumentsAlongPath(utils.getAbsolutePath('/provider/')).toArray();
 
 const assertions = [
   ...testMemberEgress(members),

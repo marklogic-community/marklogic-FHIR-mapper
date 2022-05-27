@@ -1,93 +1,84 @@
-const mapping = require('/data-hub/5/builtins/steps/mapping/entity-services/main.sjs')
+const Artifacts = require('/data-hub/5/artifacts/core.sjs');
+const FlowExecutionContext = require('/data-hub/5/flow/flowExecutionContext.sjs');
+const StepExecutionContext = require('/data-hub/5/flow/stepExecutionContext.sjs');
+const flowRunner = require('/data-hub/5/flow/flowRunner.sjs');
 
-function preMapMapAndUnwrap(content, mapping) {
-  var preMappedConent = preMap(content, mapping)
-  return mapAndUnwrap(preMappedConent, mapping)
-}
+const cachedFlowExecutionContexts = new Map();
 
-function preMap(content, mapping) {
-  var premappingModulName = "/custom-modules/egress-preprocessors/" + mapping + ".sjs"
-  var premappingModule = null
-  try {
-    premappingModule = require(premappingModulName)
-  } catch (e) {
-    //no preprocessor
-  }
-  if(premappingModule != null) {
-    return premappingModule.transform(content)
-  } else {
-    return content
-  }
-}
+function getStepExecutionContextForMapping(mapping) {
+  // If there is no cached FlowExecutionContext for the given mapping
+  if (!cachedFlowExecutionContexts.has(mapping)) {
+    const name = `in-memory-${mapping}-flow`;
 
-function writePreMapToDB(content, mapping){
-  var premappingModulName = "/custom-modules/egress-preprocessors/" + mapping + ".sjs"
-  const premappingModule = require(premappingModulName)
-
-  var newDocument = premappingModule.transform(content)
-  var collections = premappingModule.getCollections(newDocument)
-  var uri = premappingModule.getURI(newDocument)
-  var newPerms = xdmp.documentGetPermissions(content.baseURI)
-
-  xdmp.documentInsert(uri, newDocument, {
-    permissions : newPerms ? newPerms : xdmp.defaultPermissions(),
-    collections : collections,
-  })
-}
-
-function mapAndUnwrap(content, mapping) {
-  var mappedConent = map(content, mapping)
-  return unwrapEnvelopeDoc(mappedConent)
-}
-
-function map(content, mappingName) {
-  var doc = {
-    'value': content
+    // Create a FlowExecutionContext for a single-step flow with the mapping
+    cachedFlowExecutionContexts.set(mapping, new FlowExecutionContext({
+      name,
+      batchSize: 100,
+      threadCount: 4,
+      stopOnError: false,
+      version: 0,
+      steps: { '1': Artifacts.convertStepReferenceToInlineStep(`${mapping}-mapping`, name), },
+    }));
   }
 
-  var options = {
-    'mapping': {
-      'name': mappingName
-    }
-  }
-
-  return mapping.main(doc, options).value
+  // Create a new StepExecutionContext for the cached FlowExecutionContext for the given mapping
+  return StepExecutionContext.newContext(cachedFlowExecutionContexts.get(mapping), '1');
 }
 
-function unwrapEnvelopeDoc(doc) {
-  return unwrapES(doc.toObject().envelope.instance)
+/**
+ * Check to see if an object is iterable and can be spread into an array
+ *
+ * @param  {unknown}   obj  The object
+ *
+ * @return {boolean}  True if the specified object is iterable, False otherwise.
+ */
+function isIterable(obj) {
+  return !!obj && typeof obj[Symbol.iterator] === 'function';
 }
 
-function unwrapES(node) {
-  if (node instanceof Array) {
-    return node.map(unwrapES)
-  } else if (node instanceof Object) {
-    var instanceKey = Object.keys(node).find(element => element != "info")
-    var newNode = node[instanceKey]
-    for (var child in newNode) {
-      newNode[child] = unwrapES(newNode[child])
-      if(newNode[child] == null) {
-        delete newNode[child]
-      }
-    }
-    if(newNode.hasOwnProperty('$ref')) {
-      return null
-    }
-    return newNode
-  } else {
-    return node
-  }
+/**
+ * Run any configured pre-step interceptors from the mapping step on the provided document(s)
+ *
+ * @param  {Node[] | Sequence<Node> | object} docs    The document(s) to process
+ * @param  {string}                           mapping The name of the mapping to use
+ *
+ * @return {Node[]}
+ */
+function runPreStepInterceptorsOnNodes(docs, mapping) {
+  // Create a contentArray so that we can pull the processed documents back out after running interceptors
+  const contentArray = (isIterable(docs) ? [...docs] : [docs]).map(value => ({ value }));
+
+  // Run the mapping step's pre-step interceptors against the provided documents
+  flowRunner.invokeInterceptors(getStepExecutionContextForMapping(mapping), contentArray, 'beforeMain');
+
+  // Return the processed values
+  return contentArray.map(entry => entry.value);
 }
 
-// Common Egress Code to transform documents returned from the query
-function transformMultiple(rawDocs, entityToFHIR) {
-  var egressedDoc = []
+/**
+ * Run the entire mapping step on the provided document(s)
+ *
+ * @param  {Node[] | Sequence<Node> | object} docs    The document(s) to process
+ * @param  {string}                           mapping The name of the mapping to use
+ *
+ * @return {Node[]}
+ */
+function transform(docs, mapping) {
+  // Get mapping step execution context to run against
+  const stepExecutionContext = getStepExecutionContextForMapping(mapping);
 
-  for (var rawDoc of rawDocs) {
-    egressedDoc.push(preMapMapAndUnwrap(rawDoc, entityToFHIR))
+  // Run the mapping step without attempting to write output to a DB
+  const res = flowRunner.runStepAgainstSourceDatabase(stepExecutionContext, (isIterable(docs) ? [...docs] : [docs]).map(value => ({ value })), null);
+
+  // Step execution context encountered errors while running
+  if (stepExecutionContext.stepErrors.length) {
+    // Report the first mapping error without any of the internal DHF stack trace
+    throw stepExecutionContext.stepErrors[0].message;
   }
-  return egressedDoc;
-};
+
+  // Return the mapped values
+  return res.map(entry => entry.value);
+}
 
 function searchValuesWithModifier(values, modifier) {
   switch (modifier) {
@@ -112,11 +103,8 @@ const modifierPrefixMap = new Map([
 ]);
 
 module.exports = {
-  mapAndUnwrap,
-  preMap,
-  writePreMapToDB,
-  preMapMapAndUnwrap,
-  transformMultiple,
+  runPreStepInterceptorsOnNodes,
+  transform,
   searchValuesWithModifier,
-  modifierPrefixMap
+  modifierPrefixMap,
 }
