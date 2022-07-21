@@ -20,27 +20,37 @@ function useValueInOutput(v) {
  * Recursively unwrap our stored ES-FHIR model to create true FHIR output, e.g.:
  *
  * {
- *   "organization": { "Organization": { ... } },
- *   "location": { "Reference": { ... } },
- *   ...
+ *   "Organization": {
+ *     "type": "Organization"
+ *   }
  * }
  *
- * gets flattened to
+ * gets flattened to:
  *
  * {
- *   "organization": { ... },
- *   "location": { ... },
- *   ...
+ *   "type": "Organization"
  * }
+ *
+ * Arrays map each object in the array individually as though it were a single node provided to the function, and
+ * primitives are returned as-is
  */
 function unwrapES(node) {
   if (Array.isArray(node)) {
+    traceObject(node);
+
     return node.map(unwrapES).filter(useValueInOutput);
   }
 
-  if (typeof node === 'object') {
-    const instanceKey = Object.keys(node).find(element => element != "info");
-    const newNode = node[instanceKey];
+  if (typeof node === 'object' && node !== null) {
+    traceObject(node);
+
+    const values = Object.values(node);
+
+    if (values.length !== 1) {
+      throw new Error(`Expected a single sub-key, got ${values.length} sub-keys ([${Object.keys(node).join(', ')}])`);
+    }
+
+    const newNode = values[0];
 
     if (newNode.hasOwnProperty('$ref')) {
       return null;
@@ -59,10 +69,82 @@ function unwrapES(node) {
 }
 
 /**
+ * Unwrap the ES-FHIR model stored inside the base instance object from a Data Hub envelope to create true FHIR output,
+ * e.g.:
+ *
+ * {
+ *   "practitioner": {
+ *     "Reference": {
+ *       "type": "Practitioner",
+ *       "reference": "Practitioner/id"
+ *     }
+ *   },
+ *   "organization": {
+ *     "Reference": {
+ *       "type": "Organization"
+ *     }
+ *   },
+ *   "location": [
+ *     {
+ *       "Reference": {
+ *         "reference": "Location/id-providerlocations-3"
+ *         "type": "Location"
+ *       }
+ *     }
+ *   ]
+ * }
+ *
+ * gets flattened to:
+ *
+ * {
+ *   "practitioner": {
+ *     "type": "Practitioner",
+ *     "reference": "Practitioner/id"
+ *   },
+ *   "organization": {
+ *     "type": "Organization"
+ *   },
+ *   "location": [
+ *     {
+ *       "reference": "Location/id-providerLocations-3",
+ *       "type": "Location"
+ *     }
+ *   ]
+ * }
+ */
+function unwrapBaseInstance(instance) {
+  traceObject(instance);
+
+  if (emptyValues.includes(instance)) {
+    throw new Error('Expected base instance to be an object, got an empty value');
+  }
+
+  if (typeof instance !== 'object') {
+    throw new Error(`Expected base instance to be an object, got ${xdmp.quote(instance)}`);
+  }
+
+  if (Array.isArray(instance)) {
+    throw new Error('Expected a single base instance object, got an array');
+  }
+
+  for (const [key, value] of Object.entries(instance)) {
+    const res = unwrapES(value);
+
+    instance[key] = useValueInOutput(res) ? res : undefined;
+  }
+
+  return instance;
+}
+
+/**
  * Unwrap mapping step output from ES-FHIR to true FHIR
  */
 contentArray.forEach(content => {
+  // Get actual instance (and not the info node) deterministically
+  const instanceType = fn.head(content.value.xpath('/envelope/instance/info/title'));
+  const instance = fn.head(content.value.xpath(`/envelope/instance/${instanceType}`)).toObject();
+
   // Force conversion to actual JS types (Object, Array, etc.) instead of using ML builtins which don't map correctly to
   // JS by stringifying/parsing JSON
-  content.value = unwrapES(JSON.parse(JSON.stringify(content.value.toObject().envelope.instance)));
+  content.value = unwrapBaseInstance(JSON.parse(JSON.stringify(instance)));
 });
